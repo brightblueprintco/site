@@ -1248,12 +1248,15 @@ function parseDate(t){var now=new Date(),y=now.getFullYear(),m;var low=t.toLower
   function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}}
 function findTracking(t){var toks=t.replace(/[^\w\s-]/g," ").split(/\s+/);var joined=t.replace(/\s+/g," ");
   var pats=[/\b\d{14}[A-Z]\b/,/\bJD\d{16}\b/,/\bJJD\d{10,}\b/,/\b[A-Z]{2}\d{9}GB\b/,/\b1Z[0-9A-Z]{16}\b/,/\bH[0-9A-Z]{15}\b/,/\bTBA\d{9,12}\b/,/\b9[1-5]\d{18,24}\b/,/\b\d{14}\b/,/\b\d{12}\b/,/\b\d{15}\b/,/\b\d{10}\b/];
-  for(var p=0;p<pats.length;p++){var m=joined.toUpperCase().replace(/(\d)\s(?=\d)/g,"$1").match(pats[p]);if(m)return m[0]}
+  var J=joined.toUpperCase().replace(/(\d)\s(?=\d)/g,"$1").replace(/\b(H)O(?=\d)/g,"$10").replace(/(\d)O(?=\d)/g,"$10").replace(/(\d)O(?=\d)/g,"$10");
+  for(var p=0;p<pats.length;p++){var m=J.match(pats[p]);if(m)return m[0]}
   var lab=t.match(/track(?:ing)?\s*(?:number|no\.?|#|id|code)?\s*[:#]?\s*([A-Z0-9-]{8,30})/i);return lab?lab[1].replace(/-/g,""):""}
 function parseShot(t){var o={item:"",from:"",due:"",track:"",order:""};
   var AMB={"Next":1,"Very":1,"Boots":1,"Apple":1,"Target":1,"Lush":1,"Liberty":1,"Lego":1};var t2=t.replace(/next\s*(day|working|business|delivery|week)/gi," ");
   SHOPS.some(function(s){if(new RegExp("\\b"+s.replace(/[&]/g,"\\&").replace(/'/g,".?")+"\\b",AMB[s]?"":"i").test(t2)){o.from=s==="M&S"?"Marks & Spencer":s;return true}});
   var car="";CARRIERS.some(function(c){if(c[1].test(t)){car=c[0];return true}});o.carrier=car;
+  if(!o.from){var fm=t.replace(/from\s*\n+\s*/gi,"from ").match(/(?:parcel|order|package|delivery|purchase|items?|shipment)\s+from[:\s]+([A-Za-z0-9&'’.\- ]{2,32})/i)||t.match(/^\s*(?:from|sold by|seller)\s*[:\-]\s*([A-Za-z0-9&'’.\- ]{2,32})\s*$/im);
+    if(fm){var fv=fm[1].replace(/\b(is|has|was|will|on|your|the|been|arriving|delivered|dispatched|shipped)\b.*$/i,"").trim();if(fv.length>1&&!CARRIERS.some(function(c){return c[1].test(fv)}))o.from=fv.replace(/\b([a-z])/g,function(m){return m.toUpperCase()})}}
   var lines=t.split(/\n/).map(function(x){return x.trim()}).filter(Boolean);
   var dl=lines.filter(function(l){return /arriv|deliver|expected|estimated|due|get it|out for|dispatched|shipped/i.test(l)});
   for(var i=0;i<dl.length&&!o.due;i++){o.due=parseDate(dl[i]+" "+(lines[lines.indexOf(dl[i])+1]||""))} if(!o.due)o.due=parseDate(t);
@@ -1269,16 +1272,22 @@ function parseShot(t){var o={item:"",from:"",due:"",track:"",order:""};
   o.item=il||(o.order?"Order "+o.order:"");return o}
 var TESS=null;function loadTess(cb){if(window.Tesseract)return cb();if(TESS){TESS.push(cb);return}TESS=[cb];var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";s.onload=function(){TESS.forEach(function(f){f()})};s.onerror=function(){var b=document.getElementById("shotOut");if(b)b.innerHTML='<p class="meta">Couldn’t load the reader. Check your connection and try again.</p>'};document.head.appendChild(s)}
 window.PS_SHOT=function(file){var out=document.getElementById("shotOut");if(!out||!file)return;var url=URL.createObjectURL(file);out.innerHTML='<div class="scan"><img src="'+url+'" alt=""><i></i></div><p class="meta" id="shotProg" style="text-align:center">Reading your screenshot… (the first time takes a few seconds)</p>';
-  loadTess(function(){Tesseract.recognize(file,"eng",{logger:function(m){var p=document.getElementById("shotProg");if(p&&m.status&&m.progress!=null)p.textContent="Reading your screenshot… "+Math.round(m.progress*100)+"%"}}).then(function(r){
-    var o=parseShot(r.data.text||"");window.PS_LAST=o;
+  function prep(cb){var img=new Image();img.onload=function(){var sc=Math.min(1,2000/Math.max(img.width,img.height)),w=Math.round(img.width*sc),h=Math.round(img.height*sc);
+      var a=document.createElement("canvas"),b=document.createElement("canvas");a.width=b.width=w;a.height=b.height=h;var ca=a.getContext("2d"),cb2=b.getContext("2d");ca.drawImage(img,0,0,w,h);
+      var d=ca.getImageData(0,0,w,h),e=cb2.createImageData(w,h);for(var i=0;i<d.data.length;i+=4){var l=Math.round(.299*d.data[i]+.587*d.data[i+1]+.114*d.data[i+2]);d.data[i]=d.data[i+1]=d.data[i+2]=l;e.data[i]=e.data[i+1]=e.data[i+2]=255-l;e.data[i+3]=255}
+      ca.putImageData(d,0,0);cb2.putImageData(e,0,0);cb([a,b])};img.onerror=function(){cb([file])};img.src=url}
+  var prog=function(base){return {logger:function(m){var p=document.getElementById("shotProg");if(p&&m.status&&m.progress!=null)p.textContent="Reading your screenshot… "+Math.round(base+m.progress*50)+"%"}}};
+  loadTess(function(){prep(function(srcs){var texts=[];var run=function(i){if(i>=srcs.length){done(texts.join("\n"));return}Tesseract.recognize(srcs[i],"eng",prog(i*50)).then(function(r){texts.push(r.data.text||"");run(i+1)}).catch(function(){run(i+1)})};run(0)});
+    function done(txt){
+    var o=parseShot(txt);window.PS_LAST=o;
     var ti=o.track&&window.trackInfo?trackInfo(o.track):null;
     out.innerHTML='<div class="psi"><div class="psk">Here’s what we found. Check it, then add it.</div>'+
       '<div class="row"><div class="f"><label>Item</label><input type="text" id="shItem" value="'+esc(o.item)+'"></div><div class="f"><label>From</label><input type="text" id="shFrom" value="'+esc(o.from)+'"></div></div>'+
       '<div class="f full" style="margin-top:8px"><label>Delivering to</label><div class="tochips">'+["Home","Work","Someone else","Locker / pickup"].map(function(x,i){return '<button class="pa sm'+(i?"":" on")+'" data-shto="'+x+'">'+x+'</button>'}).join("")+'</div></div>'+
-      '<div class="row"><div class="f"><label>Due</label><input type="date" id="shDue" value="'+esc(o.due)+'"></div><div class="f"><label>Tracking</label><input type="text" id="shTrack" autocapitalize="characters" value="'+esc(o.track)+'"></div></div>'+
+      '<div class="row"><div class="f full"><label>Due</label><input type="date" id="shDue" value="'+esc(o.due)+'"></div><div class="f full"><label>Tracking</label><input type="text" id="shTrack" autocapitalize="characters" value="'+esc(o.track)+'"></div></div>'+
       (o.carrier?'<p class="meta" style="margin-top:6px">Carrier spotted: <b>'+esc(o.carrier)+'</b></p>':'')+(!o.track?'<p class="meta" style="margin-top:6px">No tracking number spotted. Paste it in if you have one.</p>':'')+
       '<div class="psb"><button class="bbbtn pine" data-shadd="1">Add this order</button><button class="bbbtn" data-shadd="2">Add + delivery-day alert</button></div></div>';
-  }).catch(function(){out.innerHTML='<p class="meta">Sorry, couldn’t read that one. Try a clearer screenshot, or type it in below.</p>'})});};
+  }});};
 /* ---------- events ---------- */
 function adv(){setTimeout(function(){go(P.step+1,1)},160)}
 window.addEventListener("click",function(e){var t=e.target.closest("[data-psrel],[data-psage],[data-psint],[data-pstrait],[data-psgo],[data-psnext],[data-psback],[data-pspick],[data-psbq],[data-psedit],[data-psshuffle],[data-psnew],[data-psmore],[data-pssave],[data-psfind],[data-psnope],[data-trfind],[data-shclose],[data-psqx],[data-tpfind],[data-psqshop],[data-shgift],[data-shprice],[data-ideasfor],[data-shadd],[data-psalert],[data-shotbtn],[data-shto]");if(!t)return;var d=t.dataset;

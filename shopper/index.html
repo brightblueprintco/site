@@ -357,6 +357,22 @@ body.gated>*:not(#gate):not(.saved):not(script):not(style){display:none!importan
 .wor{display:flex;align-items:center;gap:10px;margin:18px 0 12px;font-family:var(--type);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}.wor:before,.wor:after{content:"";flex:1;border-top:1px dashed var(--line)}
 .wprice{flex:1;min-width:0;display:flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:#fff;padding-left:10px}.wprice span{font-weight:600;color:var(--ink2)}.wprice input{border:0!important;min-width:0;width:100%;box-shadow:none!important;background:none!important}
 #wishPage .holly{width:64px;height:40px}
+/* v6 */
+.dwrap{position:relative;display:block;width:100%}.dwrap input{width:100%;padding-right:34px!important}
+.dclr{display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;border:0;background:#EADBC0;color:var(--ink);font-size:17px;line-height:26px;padding:0;cursor:pointer;z-index:2}
+.dwrap.has .dclr{display:block}
+.hchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.hchips .pa{background:#fff;color:var(--cran);border-color:#E7B9B6}
+.mtiles .mt{position:relative;padding-top:58px;border:1.5px solid transparent;transition:transform .12s,border-color .2s}
+.mt i{position:absolute;top:14px;left:14px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--card)}
+.mt0 i{background:var(--cran)}.mt1 i{background:var(--pine)}.mt2 i{background:var(--gold)}
+.mt:active{border-color:var(--gold)}
+.mt b{font-size:17px}
+.wtabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.wtab{background:var(--card);border:2px solid transparent;border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;box-shadow:0 8px 14px -12px rgba(51,38,29,.55);font-family:var(--serif);color:var(--ink)}
+.wtab b{display:block;font-size:17px}.wtab span{display:block;font-size:12.5px;color:var(--ink2);margin-top:2px}
+.wtab.on{border-color:var(--pine);background:#fff}.wtab.on b{color:var(--pine)}
+.wpi textarea{width:100%;min-height:56px}
+.row .f:has(.dwrap){flex:1 1 46%;min-width:46%}
 </style>
 </head>
 <body>
@@ -1117,10 +1133,21 @@ function ideaCard(i,k){var it=ITEMS[i],p=findPerson(P.who),sv=p&&p.saved.indexOf
   return '<div class="psi pin" style="animation-delay:'+(k*60)+'ms" data-card="'+i+'"><div class="psk">'+esc(CATS[it[1]]||"")+' · '+esc(bandLabel(it[2]))+'</div><div class="pst">'+esc(it[0])+'</div>'+(whyFor(i)?'<div class="psw">'+esc(whyFor(i))+'</div>':'')+
    '<div class="pact"><button class="pa'+(sv?" on":"")+'" data-pssave="'+i+'">'+heart(sv)+(sv?"Saved":"Save")+'</button><button class="pa main" data-psfind="'+i+'">Find it →</button><button class="pa ghost" data-psnope="'+i+'">Not for them</button></div></div>'}
 var TPI=[];
-function trendPicks(){TPI=[];if(!TR)return "";var c=country(),bb=bandOf(P.budget),words=[];
-  GROUPS.forEach(function(g){if(P.ints.indexOf(g[0])>=0)words=words.concat(g[1].toLowerCase().split(/[^a-z]+/).filter(function(w){return w.length>3}))});
-  var all=[];(TR.groups||[]).forEach(function(g){(g.items||[]).forEach(function(x){if(x.c&&x.c.indexOf(c)<0)return;if(x.b&&x.b>bb)return;var t=(x.n+" "+(x.tag||"")+" "+(g.title||"")).toLowerCase(),sc=0;words.forEach(function(w){if(t.indexOf(w.slice(0,5))>=0)sc+=2});all.push([sc+Math.random(),x])})});
-  all.sort(function(a,b){return b[0]-a[0]});var rel=all.filter(function(a){return a[0]>=2});TPI=(rel.length?rel.slice(0,2):all.slice(0,1)).map(function(a){return a[1]});if(!TPI.length)return "";
+var TKW={cook:"cook bake kitchen recipe chef host table napkin",food:"food treat chocolate snack hamper sweet cheese host table napkin tablecloth",drinks:"drink cocktail gin wine whisky beer glass bar host table",coffee:"coffee tea mug",
+ tech:"tech gadget smart speaker charger",gaming:"game gaming console",music:"music vinyl record",film:"film movie cinema",books:"book read journal",
+ crafts:"craft kit paint needlepoint sewing embroider bead knit wreath making pattern",diy:"tool kit making workshop",garden:"garden plant wreath flower vase seed",
+ outdoors:"outdoor hike walk camp nature",sport:"football sport golf team",fitness:"fitness run yoga gym",beauty:"beauty pamper skincare bath",
+ fashion:"fashion jewel earring brooch bracelet capelet bag scarf velvet party",home:"home cushion throw vase tablecloth napkin decor runner bauble decoration",
+ pets:"pet dog cat",travel:"travel",photo:"photo print portrait camera",puzzles:"game puzzle",toys:"toy play",exp:"workshop experience class ticket",
+ eco:"eco handmade hand-",funny:"funny party game",sentimental:"personalised custom name portrait handmade hand-",cars:"car driving"};
+function trendPicks(){TPI=[];if(!TR)return "";var c=country(),bb=bandOf(P.budget),kw=[];
+  P.ints.forEach(function(k){kw=kw.concat((TKW[k]||"").split(" ").filter(Boolean))});
+  var all=[];(TR.groups||[]).forEach(function(g){(g.items||[]).forEach(function(x){if(x.c&&x.c.indexOf(c)<0)return;if(x.b&&x.b>bb)return;
+    var sc=0;if(x.k&&x.k.length){P.ints.forEach(function(k){if(x.k.indexOf(k)>=0)sc+=3})}
+    else{var t=(x.n+" "+(x.tag||"")+" "+(g.title||"")).toLowerCase();kw.forEach(function(w){if(t.indexOf(w)>=0)sc+=1})}
+    all.push([sc+Math.random()*.5,x])})});
+  all.sort(function(a,b){return b[0]-a[0]});var rel=all.filter(function(a){return a[0]>=1});
+  TPI=(P.ints.length?rel.slice(0,2):all.slice(0,1)).map(function(a){return a[1]});if(!TPI.length)return "";
   return '<p class="lab tlab" style="margin:4px 0 10px">Trending this week</p>'+TPI.map(function(x,k){return '<div class="psi pin trp" style="animation-delay:'+k*60+'ms"><span class="tbadge">Trending</span><div class="psk">'+esc(x.tag||"Trending")+(x.b?' · '+esc(bandLabel(x.b)):'')+'</div><div class="pst">'+esc(x.n)+'</div>'+
    '<div class="pact"><button class="pa main" data-tpfind="'+k+'">Find it →</button></div></div>'}).join("")}
 function isExpName(n,tr){return (tr||"").indexOf("e")>=0&&/voucher|class|experience|lesson|tickets|tour|day|session|course|trip|membership|night|visit|walk|workshop|taster/i.test(n)}
@@ -1132,11 +1159,14 @@ var Q="";
 function searchRun(){var r=document.getElementById("psSR"),box=document.getElementById("psBox"),res=document.getElementById("psRes");if(!r)return;var q=Q.trim().toLowerCase();
   var on=q.length>=2;box.hidden=on;res.hidden=on;var x=document.getElementById("psQx");if(x)x.hidden=!Q;
   if(!on){r.innerHTML="";return}
-  var words=q.split(/\s+/),out=[];ITEMS.forEach(function(it,i){var hay=(it[0]+" "+(CATS[it[1]]||"")).toLowerCase();if(words.every(function(w){return hay.indexOf(w)>=0})){var sc=it[0].toLowerCase().indexOf(q)===0?2:it[0].toLowerCase().indexOf(q)>=0?1:0;out.push([sc,i])}});
+  var STOP={loves:1,love:1,likes:1,like:1,size:1,no:1,more:1,really:1,anything:1,the:1,and:1,for:1,with:1,not:1,any:1,please:1,but:1,into:1,her:1,his:1,them:1,they:1,very:1,big:1,fan:1,of:1,a:1,an:1};
+  var words=q.split(/[\s,]+/).filter(function(w){return w.length>1}),out=[];ITEMS.forEach(function(it,i){var hay=(it[0]+" "+(CATS[it[1]]||"")).toLowerCase();if(words.every(function(w){return hay.indexOf(w)>=0})){var sc=it[0].toLowerCase().indexOf(q)===0?2:it[0].toLowerCase().indexOf(q)>=0?1:0;out.push([sc+10,i])}});
+  if(!out.length){var kws=words.filter(function(w){return !STOP[w]&&w.length>2});if(kws.length)ITEMS.forEach(function(it,i){var hay=(it[0]+" "+(CATS[it[1]]||"")).toLowerCase(),m=0;kws.forEach(function(w){if(hay.indexOf(w)>=0)m++});if(m)out.push([m,i])})}
   out.sort(function(a,b){return b[0]-a[0]||ITEMS[a[1]][2]-ITEMS[b[1]][2]});var n=out.length;out=out.slice(0,30);
   var shopCard='<div class="card qshop"><div class="psk">Got something specific in mind?</div><div class="pst">Search the shops for “'+esc(Q.trim())+'”</div><p class="meta" style="margin:2px 0 10px">Amazon, Etsy, Google and more, all in one tap. Then add it to someone’s list.</p><button class="pa main" data-psqshop="1">Find “'+esc(Q.trim())+'” →</button></div>';
   r.innerHTML=(n?'':shopCard)+'<p class="lab" style="margin:4px 0 10px">'+(n?(n>30?"Top 30 of "+n:n)+' idea'+(n===1?"":"s")+' for “'+esc(Q.trim())+'”':'It’s not in our 5,000 ideas, but the shops will have it.')+'</p>'+(n?shopCard:'')+
    out.map(function(x,k){return ideaCard(x[1],Math.min(k,8))}).join("")+(n?BB.AMZ_NOTE:"");BB.after(r)}
+window.PS_SEARCH=function(q){if(location.hash!=="#shopper")location.hash="#shopper";setTimeout(function(){var qi=document.getElementById("psQ");if(qi){qi.value=q;Q=q;searchRun();window.scrollTo(0,0)}},80)};
 window.PS_RENDER=function(anim){var box=document.getElementById("psBox"),r=document.getElementById("psRes");if(!box)return;if(P.stage==="res"&&!P.res)P.res=score();
   if(P.stage!=="res"||!P.res){box.innerHTML=stepHTML();if(r)r.innerHTML="";if(anim){var q=document.getElementById("qstep");if(q)q.classList.add(anim)}return}
   box.innerHTML=switcher()+summary();
@@ -1372,6 +1402,8 @@ function renderHome(){var box=document.getElementById("homeBox");if(!box)return;
   h+=backupCard()+(window.WL_POSTCARD?WL_POSTCARD():"")+tools()+appCard()+review();
   box.innerHTML='<div class="homehead"><div class="lab">Your Christmas</div></div>'+h;animate(box);BB.after(box)}
 /* ---------- People ---------- */
+function hintChips(h){var STOP=/\b(loves?|likes?|into|size|really|anything|please|but|and|the|a|an|she|he|they|is|are|big|fan of|fan|very|not|no more|no|more|nothing)\b/gi;
+  return String(h||"").split(/[,;.\n]|\band\b/i).filter(function(x){return !/^\s*(no|not|don'?t|nothing|avoid|never)\b/i.test(x)}).map(function(x){return x.replace(STOP," ").replace(/\s+/g," ").trim()}).filter(function(x){return x.length>2&&!/^\d+$/.test(x)}).slice(0,4)}
 function renderPeople(){var box=document.getElementById("peopleBox");if(!box)return;var P=ppl(),R=window.PS_REL||{};
   var h='<div class="card"><label class="lab" for="shPName">Add someone</label><div class="qadd"><input type="text" id="shPName" placeholder="Name" autocomplete="off" enterkeyhint="done"><button class="bbbtn pine" data-shpadd="1">Add</button></div></div>';
   if(!P.length)h+='<div class="card"><p class="meta">No one yet. Add the people you’re buying for and we’ll keep each of them on track.</p></div>';
@@ -1381,15 +1413,21 @@ function renderPeople(){var box=document.getElementById("peopleBox");if(!box)ret
     var sv=(p.saved||[]).map(function(n,i){return '<li><span>'+esc(n)+'</span><button class="pa sm" data-shsvadd="'+esc(p.id)+'|'+i+'">Add</button></li>'}).join("");
     return '<div class="card pcard" id="pc-'+esc(p.id)+'">'+'<div class="ph">'+avatar(p.name,1)+'<div style="flex:1;min-width:0"><div class="hh" style="font-size:22px">'+esc(p.name)+'</div><div class="meta">'+esc([R[p.rel],p.budget?"up to "+C()+p.budget+" each":""].filter(Boolean).join(" · ")||"Gift ideas not set up yet")+'</div></div></div>'+
      '<div class="pstat"><span>'+bt+' of '+g.length+' bought</span><span>'+esc(money(sp))+(bud?' of '+esc(money(bud)):' spent')+'</span></div>'+bar(g.length?bt/g.length:0)+
-     (gl?'<ul class="gl">'+gl+'</ul>':'')+(p.surprise||p.hints?'<div class="surp">'+(p.surprise?'<b>'+esc(p.name)+' says: surprise me!</b>':'')+(p.hints?'<span>Hints: '+esc(p.hints)+'</span>':'')+'</div>':'')+(wl?'<p class="lab" style="margin:12px 0 4px;color:var(--cran)">Their wish list</p><ul class="svl">'+wl+'</ul>':'')+(sv?'<p class="lab" style="margin:12px 0 4px">Shortlist</p><ul class="svl">'+sv+'</ul>':'')+
+     (gl?'<ul class="gl">'+gl+'</ul>':'')+(p.surprise||p.hints?'<div class="surp">'+(p.surprise?'<b>'+esc(p.name.split(" ")[0])+' says: surprise me!</b>':'')+(p.hints?'<span>Hints: '+esc(p.hints)+'</span><div class="hchips">'+hintChips(p.hints).map(function(h){return '<button class="pa sm" data-shhint="'+esc(h)+'">Search “'+esc(h)+'”</button>'}).join("")+'</div>':'')+'<button class="pa main sm" style="margin-top:8px" data-shideas="'+esc(p.name)+'">Find ideas for '+esc(p.name.split(" ")[0])+' →</button></div>':'')+(wl?'<p class="lab" style="margin:12px 0 4px;color:var(--cran)">Their wish list</p><ul class="svl">'+wl+'</ul>':'')+(sv?'<p class="lab" style="margin:12px 0 4px">Shortlist</p><ul class="svl">'+sv+'</ul>':'')+
      '<button class="wask" data-shwask="'+esc(p.name)+'"><b>Ask '+esc(p.name.split(" ")[0])+' for a wish list</b><span>Send a WhatsApp link. They add ideas, it lands here.</span></button>'+
      '<button class="wpaste" data-shwpaste="1">Got their reply? Copy it in WhatsApp, then tap here to paste</button>'+
      '<div class="pact"><button class="pa main" data-shideas="'+esc(p.name)+'">Find ideas →</button><button class="pa" data-shpgift="'+esc(p.id)+'">Add a gift</button><button class="pa ghost" data-shpdel="'+esc(p.id)+'">Remove</button></div></div>'}).join("");
   box.innerHTML=h;animate(box);BB.after(box)}
 /* ---------- More ---------- */
 var MORE=[["app","Make it an app","Home screen + your photo"],["budget","Budget","Set limits per group"],["gifts","Gift list","Every gift in one place"],["ideas","Mentioned","Hints they’ve dropped"],["trending","Trending","What’s hot this week"],["kids","Kids","Stockings and Santa gifts"],["cards","Cards & posting","Last posting dates"],["eve","Christmas Eve","The night-before list"],["thanks","Thank-yous","Who sent what"],["next","Next year","Notes for future you"],["backup","Save my page","Backup link and reset"]];
+var MIC={app:'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/>',budget:'<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.6 0-2.7.9-2.7 2.1 0 2.8 5.4 1.4 5.4 4.1 0 1.2-1.1 2.1-2.7 2.1-1.2 0-2.2-.5-2.7-1.4M12 6.5V8M12 16v1.5"/>',
+ gifts:'<rect x="3.5" y="9" width="17" height="11.5" rx="1"/><path d="M2.5 9h19v-3h-19zM12 6v14.5M12 6C10.5 3 7 3 7.5 5.2 8 6.5 12 6 12 6zM12 6c1.5-3 5-3 4.5-.8C16 6.5 12 6 12 6z"/>',ideas:'<path d="M4 5.5h16v10H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
+ trending:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',kids:'<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>',
+ cards:'<rect x="3" y="5.5" width="18" height="13" rx="1.5"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/>',eve:'<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
+ thanks:'<path d="M12 20.5s-7.5-4.6-7.5-10.1A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1z"/>',next:'<rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>',
+ backup:'<path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>'};
 function renderMore(){var box=document.getElementById("moreBox");if(!box)return;
-  box.innerHTML='<div class="tiles">'+MORE.map(function(m){return '<a class="tile" href="#'+m[0]+'"><b>'+esc(m[1])+'</b><span>'+esc(m[2])+'</span></a>'}).join("")+'</div>'+moreFromUs()}
+  box.innerHTML='<div class="tiles mtiles">'+MORE.map(function(m,i){return '<a class="tile mt mt'+(i%3)+'" href="#'+m[0]+'"><i><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(MIC[m[0]]||"")+'</svg></i><b>'+esc(m[1])+'</b><span>'+esc(m[2])+'</span></a>'}).join("")+'</div>'+moreFromUs()}
 /* ---------- animation helpers ---------- */
 function animate(root){requestAnimationFrame(function(){requestAnimationFrame(function(){
   root.querySelectorAll(".pbar i[data-w]").forEach(function(i){i.style.width=i.dataset.w+"%"});
@@ -1430,6 +1468,11 @@ document.querySelectorAll("main section").forEach(function(sec){if(sec.id==="hom
 (function(){var h1=document.querySelector("header.top h1");if(h1&&!h1.querySelector(".holly"))h1.insertAdjacentHTML("afterbegin",HOLLY);
   var hd=document.querySelector("header.top");if(hd&&!matchMedia("(prefers-reduced-motion: reduce)").matches){var sn='<div class="snow" aria-hidden="true">';for(var i=0;i<26;i++){sn+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;animation-delay:-'+(Math.random()*12).toFixed(1)+'s;animation-duration:'+(9+Math.random()*7).toFixed(1)+'s;width:'+(3+Math.random()*4).toFixed(1)+'px;height:'+(3+Math.random()*4).toFixed(1)+'px;opacity:'+(.35+Math.random()*.45).toFixed(2)+'"></i>'}hd.insertAdjacentHTML("afterbegin",sn+'</div>')}
   var ft=document.querySelector(".foot");if(ft)ft.innerHTML='<span class="flake">✻</span> Made with love by BrightBlueprintCo'})();
+function wireDates(root){(root||document).querySelectorAll('input[type="date"]:not([data-dc])').forEach(function(inp){inp.setAttribute("data-dc","1");var w=document.createElement("span");w.className="dwrap";inp.parentNode.insertBefore(w,inp);w.appendChild(inp);
+  var b=document.createElement("button");b.type="button";b.className="dclr";b.setAttribute("aria-label","Clear date");b.textContent="×";w.appendChild(b);
+  var sync=function(){w.classList.toggle("has",!!inp.value)};sync();inp.addEventListener("input",sync);inp.addEventListener("change",sync);
+  b.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();inp.value="";sync();inp.dispatchEvent(new Event("input",{bubbles:true}));inp.dispatchEvent(new Event("change",{bubbles:true}))})})}
+wireDates();new MutationObserver(function(){wireDates()}).observe(document.body,{childList:true,subtree:true});
 var btt=document.createElement("button");btt.id="btt";btt.setAttribute("aria-label","Back to top");btt.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>Top</span>';
 document.body.appendChild(btt);btt.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"})});
 window.addEventListener("scroll",function(){btt.classList.toggle("on",window.scrollY>1100)},{passive:true});
@@ -1439,7 +1482,8 @@ tb.innerHTML=TABS5.map(function(t){return '<a href="#'+t[0]+'" data-t="'+t[0]+'"
 function addPerson(id){var el=document.getElementById(id);var n=el?el.value.trim():"";if(!n){if(el){el.focus();el.placeholder="Type a name first"}return}
   if(PS_FIND(n)){toast(n+" is already on your list");el.value="";return}S.people.push({id:uid(),name:n,saved:[],hidden:[]});S.lastAdded=n;save(true);el.value="";renderHome();renderPeople();toast(n+" added");
   var e2=document.getElementById(id);if(e2)e2.focus()}
-document.addEventListener("click",function(e){var t=e.target.closest("[data-shbk],[data-shapphide],[data-shwpaste],[data-shperson],[data-shwask],[data-shwfind],[data-shwadd],[data-shfind],[data-shscan],[data-shquick],[data-shfirst],[data-shideas],[data-shpadd],[data-shpdel],[data-shpgift],[data-shsvadd],[data-shrev],[data-go]");if(!t)return;var d=t.dataset;
+document.addEventListener("click",function(e){var t=e.target.closest("[data-shhint],[data-shbk],[data-shapphide],[data-shwpaste],[data-shperson],[data-shwask],[data-shwfind],[data-shwadd],[data-shfind],[data-shscan],[data-shquick],[data-shfirst],[data-shideas],[data-shpadd],[data-shpdel],[data-shpgift],[data-shsvadd],[data-shrev],[data-go]");if(!t)return;var d=t.dataset;
+  if(d.shhint){PS_SEARCH(d.shhint);return}
   if(d.shbk){S.bkDone=true;save(true);setTimeout(renderHome,d.shbk==="1"?800:0);return}
   if(d.shapphide){S.appHide=true;save(true);renderHome();return}
   if(d.shwpaste){WL_PASTE();return}
@@ -1574,26 +1618,27 @@ document.addEventListener("click",function(e){var t=e.target.closest("[data-nmx]
   if(t.dataset.nmgo){var v=document.getElementById("nmIn").value.trim();if(!v){document.getElementById("nmIn").focus();return}S.myName=v;save(true);el.classList.remove("on");sendAsk(t.dataset.nmgo);return}el.classList.remove("on")});
 document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="nmIn"){e.preventDefault();var b=document.querySelector("[data-nmgo]");if(b)b.click()}});
 /* ---------- the recipient's page ---------- */
-var WI=[],HINT="";
+var WI=[],HINT="",M="list";
 function money2(v,cur){var n=String(v||"").replace(/[^\d.,]/g,"");return n?cur+n:""}
 function wishPage(o){document.body.classList.add("wishmode");var el=document.createElement("div");el.id="wishPage";document.body.appendChild(el);
   var cur=CURS[o.c]||o.cur||"£",to=o.t||"",fr=o.f||"";
   if(!WI.length)WI=[{n:"",u:"",p:""},{n:"",u:"",p:""},{n:"",u:"",p:""}];
   function draw(){el.innerHTML='<div class="wp">'+(window.SH_HOLLY?'<div style="text-align:center">'+SH_HOLLY+'</div>':'')+'<div class="kick" style="text-align:center">BrightBlueprintCo</div><div class="hh wph">'+(to?esc(to)+', what would you <em>love</em> this Christmas?':'What would you <em>love</em> this Christmas?')+'</div>'+
-   '<p class="meta" style="text-align:center;margin:-2px 0 18px">'+(fr?esc(fr)+' wants to get it right.':'Someone wants to get it right.')+' Pick one:</p>'+
-   '<div class="card wsurp"><b class="hh" style="font-size:24px;display:block">Surprise me!</b><p class="meta" style="margin:4px 0 12px">Happy with whatever they choose? Add a hint or two if you like.</p><textarea data-whint="1" placeholder="Optional hints, e.g. size 12, loves green, no more candles!">'+esc(HINT)+'</textarea><button class="btn" style="width:100%;margin-top:10px;min-height:52px" data-wsurp="1">Send “Surprise me”</button></div>'+
-   '<div class="wor"><span>or make a quick wish list</span></div>'+
+   '<p class="meta" style="text-align:center;margin:-2px 0 16px">'+(fr?esc(fr)+' wants to get it right.':'Someone wants to get it right.')+'</p>'+
+   '<div class="wtabs"><button class="wtab'+(M==="list"?" on":"")+'" data-wmode="list"><b>Make a wish list</b><span>Add a few ideas</span></button><button class="wtab'+(M==="surp"?" on":"")+'" data-wmode="surp"><b>Surprise me!</b><span>Happy with anything</span></button></div>'+
+   (M==="surp"?'<div class="card wsurp"><b class="hh" style="font-size:22px;display:block">Love a surprise?</b><p class="meta" style="margin:4px 0 12px">Add a hint or two if you like. Sizes, colours, things you’d rather not get.</p><textarea data-whint="1" placeholder="e.g. size 12, loves green, no more candles!">'+esc(HINT)+'</textarea><button class="btn" style="width:100%;margin-top:10px;min-height:52px" data-wsurp="1">Send “Surprise me”</button></div>':
    WI.map(function(w,i){return '<div class="card wpi"><div class="lab">Wish '+(i+1)+'</div><input type="text" data-wn="'+i+'" value="'+esc(w.n)+'" placeholder="e.g. Green wool scarf" autocomplete="off">'+
      '<div class="row" style="margin-top:6px;flex-wrap:nowrap"><input type="text" inputmode="url" autocapitalize="off" data-wu="'+i+'" value="'+esc(w.u)+'" placeholder="Link (optional)" style="flex:2;min-width:0"><div class="wprice"><span>'+esc(cur)+'</span><input type="text" inputmode="decimal" data-wp="'+i+'" value="'+esc(w.p)+'" placeholder="Price"></div></div></div>'}).join("")+
    '<button class="bbbtn" style="width:100%" data-wadd="1">+ Add another</button>'+
-   '<button class="btn" style="width:100%;margin-top:12px;min-height:52px" data-wsend="1">Send my wish list</button>'+
+   '<div class="card wpi" style="margin-top:12px"><div class="lab">Any hints? (optional)</div><textarea data-whint="1" placeholder="e.g. size 12, loves green">'+esc(HINT)+'</textarea></div>'+
+   '<button class="btn" style="width:100%;margin-top:12px;min-height:52px" data-wsend="1">Send my wish list</button>')+
    '<p class="meta" style="text-align:center;margin-top:10px;font-size:12px">It goes back by WhatsApp. Nothing is stored anywhere.</p>'+
    '<a class="wpad" href="'+ETSY+'" target="_blank" rel="noopener">Made with the <b>Personal Shopper &amp; Gift Planner</b> by BrightBlueprintCo. Get your own on Etsy →</a></div>'}
   draw();
   var foot="\n\n✨ Sent with the BrightBlueprintCo Personal Shopper";
   var payload=function(items,surp,hint){return base()+"#wl="+enc({t:to,i:items,s:surp?1:0,h:hint})};
   el.addEventListener("input",function(e){var d=e.target.dataset;if(d.wn)WI[+d.wn].n=e.target.value;if(d.wu)WI[+d.wu].u=e.target.value;if(d.wp)WI[+d.wp].p=e.target.value;if(d.whint)HINT=e.target.value});
-  el.addEventListener("click",function(e){var t=e.target.closest("[data-wadd],[data-wsend],[data-wsurp]");if(!t)return;var hint=HINT.trim().slice(0,240);
+  el.addEventListener("click",function(e){var t=e.target.closest("[data-wadd],[data-wsend],[data-wsurp],[data-wmode]");if(!t)return;if(t.dataset.wmode){M=t.dataset.wmode;draw();return}var hint=HINT.trim().slice(0,240);
     if(t.dataset.wsurp){BB.openWA("","🎁 Surprise me! 🎁\n\nThanks so much for thinking of me"+(fr?", "+fr:"")+"! 🥰 Honestly, I’ll love whatever you choose."+(hint?"\n\n💡 A few hints: "+hint:"")+"\n\n👉 Tap to add this to your planner:\n"+payload([],1,hint)+foot);return}
     if(t.dataset.wadd){WI.push({n:"",u:"",p:""});draw();var ins=el.querySelectorAll("[data-wn]");ins[ins.length-1].focus();return}
     var items=WI.filter(function(w){return w.n.trim()}).map(function(w){return {n:w.n.trim().slice(0,90),u:w.u.trim().slice(0,300),p:money2(w.p,cur)}});
@@ -1606,7 +1651,7 @@ function importList(o,quiet){if(!o||!o.i||(!o.i.length&&!o.s&&!o.h))return false
   if(!p){p={id:uid(),name:name,saved:[],hidden:[]};S.people.push(p)}if(!p.wish)p.wish=[];var n=0;
   o.i.forEach(function(w){if(!p.wish.some(function(x){return x.n.toLowerCase()===String(w.n).toLowerCase()})){p.wish.push({n:String(w.n),u:String(w.u||""),p:String(w.p||"")});n++}});
   if(o.s)p.surprise=true;if(o.h)p.hints=String(o.h);
-  save(true);var msg=o.s&&!n?name+" says: surprise me!":n?name+"’s wish list is in: "+n+" idea"+(n===1?"":"s"):"Already got that list";
+  save(true);var fn=first(name);var msg=o.s&&!n?fn+" says: surprise me!":n?fn+"’s wish list is in: "+n+" idea"+(n===1?"":"s"):"Already got that list";
   if(quiet){renderAll();location.hash="#people";toast(msg);return true}
   try{history.replaceState(null,"",location.pathname+"#people")}catch(e){location.hash="#people"}
   setTimeout(function(){toast(msg)},400);return true}

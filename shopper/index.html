@@ -1272,14 +1272,14 @@ function parseShot(t){var o={item:"",from:"",due:"",track:"",order:""};
   for(var i=0;i<dl.length&&!o.due;i++){o.due=parseDate(dl[i]+" "+(lines[lines.indexOf(dl[i])+1]||""))} if(!o.due)o.due=parseDate(t);
   o.track=findTracking(t);
   var om=t.match(/order\s*(?:number|no\.?|#|id)?\s*[:#]?\s*([A-Z0-9][A-Z0-9-]{5,24})/i);if(om&&!/^(details|summary|confirm)/i.test(om[1]))o.order=om[1];
-  var il=lines.find(function(l){if(l.length<10||l.length>90)return false;
+  var il=lines.find(function(l){if(l.length<10||l.length>90)return false;if(o.from&&l.toLowerCase().indexOf(o.from.toLowerCase())>=0)return false;
     if(/order|deliver|arriv|track|dispatch|ship|total|price|£|\$|€|qty|quantity|address|hello|hi |thank|view|return|help|account|@|http|www|\.co|\.com|package|parcel|on its way|on the way|update|scheduled|expected|your |monday|tuesday|wednesday|thursday|friday|saturday|sunday|between|evri|dpd|ups|usps|fedex|royal mail|courier|driver|search|ask a question|sign in|menu|basket|cart|buy again|prime|inbox|reply|forward|unsubscribe|today|tomorrow|yesterday|am$|pm$/i.test(l))return false;
     var letters=(l.match(/[a-z]/gi)||[]).length,words=(l.match(/[a-z]{3,}/gi)||[]);
     if(letters/l.length<.7||words.length<2)return false;
     if(/[{}|\\<>~^_=]/.test(l))return false;
     if(SHOPS.some(function(sh){return l.toLowerCase().replace(/[^a-z& ]/g,"").trim()===sh.toLowerCase()}))return false;
     return true});
-  o.item=il||(o.order?"Order "+o.order:"");return o}
+  o.item=il||(o.order?"Order "+o.order:"");if(/^(order|parcel|package|shipment)\b/i.test(o.item))o.item="";return o}
 var TESS=null;function loadTess(cb){if(window.Tesseract)return cb();if(TESS){TESS.push(cb);return}TESS=[cb];var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";s.onload=function(){TESS.forEach(function(f){f()})};s.onerror=function(){var b=document.getElementById("shotOut");if(b)b.innerHTML='<p class="meta">Couldn’t load the reader. Check your connection and try again.</p>'};document.head.appendChild(s)}
 window.PS_SHOT=function(file){var out=document.getElementById("shotOut");if(!out||!file)return;var url=URL.createObjectURL(file);out.innerHTML='<div class="scan"><img src="'+url+'" alt=""><i></i></div><p class="meta" id="shotProg" style="text-align:center">Reading your screenshot… (the first time takes a few seconds)</p>';
   function prep(cb){var img=new Image();img.onload=function(){var sc=Math.min(1,2000/Math.max(img.width,img.height)),w=Math.round(img.width*sc),h=Math.round(img.height*sc);

@@ -1,0 +1,46 @@
+{
+ "updated": "10 November 2026",
+ "note": "What people are actually searching for and buying this season. Refreshed every morning in December.",
+ "groups": [
+  {"title": "Gifts for the whole friend group", "why": "Searches for personalised friend gifts are up hugely this season, and 'Friendsmas' supplies are up too.",
+   "items": [
+    {"n":"Personalised friend group print","b":2,"tag":"Friendsmas"},
+    {"n":"Matching friendship bracelets set","b":1,"tag":"Friendsmas"},
+    {"n":"Friendsmas party game","b":2,"tag":"Friendsmas"},
+    {"n":"Best friend book to fill in","b":1,"tag":"Friendsmas"},
+    {"n":"Custom pet portrait","b":3,"tag":"Pet gifts"},
+    {"n":"Pet Christmas bauble with their name","b":1,"tag":"Pet gifts"}]},
+  {"title": "Craftmas: make it together", "why": "Festive craft nights are the new Christmas party. DIY activity searches have exploded.",
+   "items": [
+    {"n":"Paint your own bauble kit","b":2,"tag":"Craftmas"},
+    {"n":"Needlepoint bag kit","b":3,"tag":"Craftmas"},
+    {"n":"Beginner sewing pattern","b":1,"tag":"Craftmas"},
+    {"n":"Bead bracelet making kit","b":2,"tag":"Craftmas"},
+    {"n":"Wreath making workshop","b":3,"tag":"Craftmas","exp":1},
+    {"n":"Embroidery starter kit","b":2,"tag":"Craftmas"}]},
+  {"title": "Maximalist, sparkly and a bit extra", "why": "'Merrymaxxing' is the mood: rhinestones, bold colour and baubles with personality.",
+   "items": [
+    {"n":"Bedazzled rhinestone kit","b":2,"tag":"Merrymaxxing"},
+    {"n":"Whimsical Christmas tree decorations","b":2,"tag":"Merrymaxxing"},
+    {"n":"Statement glitter bauble set","b":2,"tag":"Merrymaxxing"},
+    {"n":"Velvet bow tree decorations","b":1,"tag":"Merrymaxxing"}]},
+  {"title": "Handmade you can see", "why": "Visible brushstrokes and hand stitching are a sign of quality, not a flaw. Hand-painted and hand-woven searches are way up.",
+   "items": [
+    {"n":"Hand-painted mug","b":2,"tag":"Mark of the maker"},
+    {"n":"Hand-woven throw","b":4,"tag":"Mark of the maker"},
+    {"n":"Hand-thrown ceramic vase","b":3,"tag":"Mark of the maker"},
+    {"n":"Hand-embroidered cushion","b":3,"tag":"Mark of the maker"}]},
+  {"title": "For the host", "why": "People are dressing their tables like outfits: ruffles, lace and custom napkins.",
+   "items": [
+    {"n":"Ruffle tablecloth","b":3,"tag":"Table dressing"},
+    {"n":"Custom embroidered napkins","b":3,"tag":"Table dressing"},
+    {"n":"Lace table runner","b":2,"tag":"Table dressing"},
+    {"n":"Personalised place cards","b":1,"tag":"Table dressing"}]},
+  {"title": "Party dressing with drama", "why": "Capelets, vintage jewellery and brooches are back for the festive party season.",
+   "items": [
+    {"n":"Vintage brooch","b":2,"tag":"Party season"},
+    {"n":"Velvet capelet","b":3,"tag":"Party season"},
+    {"n":"Statement earrings","b":2,"tag":"Party season"},
+    {"n":"Men's lapel brooch","b":1,"tag":"Party season"}]}
+ ]
+}

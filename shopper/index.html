@@ -339,6 +339,10 @@ header.top h1 .holly{width:54px;height:34px;vertical-align:top;margin:-8px -6px 
 .apphero,.appcard{display:flex;gap:14px;align-items:center}
 .appic{flex:none;width:72px;height:72px;border-radius:17px;overflow:hidden;box-shadow:0 6px 14px -6px rgba(33,24,18,.5)}.appic.sm{width:54px;height:54px;border-radius:13px}.appic img{width:100%;height:100%;object-fit:cover;display:block}
 .appcard{border:1.5px solid var(--gold)}
+.psheet{position:fixed;inset:0;z-index:85;pointer-events:none}.psheet .shbg{position:absolute;inset:0;background:rgba(33,24,18,.45);opacity:0;transition:opacity .25s}
+.psheet .shp{position:absolute;left:0;right:0;bottom:0;max-width:600px;margin:0 auto;background:var(--card);border-radius:20px 20px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .34s cubic-bezier(.2,.8,.3,1)}
+.psheet.on{pointer-events:auto}.psheet.on .shbg{opacity:1}.psheet.on .shp{transform:none}
+.bkcard{border:1.5px solid var(--pine)}
 </style>
 </head>
 <body>
@@ -438,7 +442,7 @@ header.top h1 .holly{width:54px;height:34px;vertical-align:top;margin:-8px -6px 
 <section id="cards">
 <h2>Cards &amp; posting</h2>
 <p class="sub">Miss the last posting date and it's a New Year present.</p>
-<div class="card"><div class="lab" style="margin-bottom:8px">Last posting dates <span class="meta" style="text-transform:none;letter-spacing:0;font-weight:300">— check your postal service and fill these in early</span></div>
+<div class="card"><div class="lab" style="margin-bottom:8px">Last posting dates <span class="meta" style="text-transform:none;letter-spacing:0;font-weight:300">— UK dates are filled in for Royal Mail. Change them if you use another service.</span></div>
 <div class="row" id="postDates"></div></div>
 <div class="add" id="addCard"></div>
 <div id="cardList"></div>
@@ -1309,6 +1313,8 @@ function welcome(){var ex=ppl().map(function(p){return '<button class="chip on" 
    '<label for="shQuick" class="lab">Name</label><div class="qadd"><input type="text" id="shQuick" placeholder="e.g. Mum, Sarah, the boss" autocomplete="off" enterkeyhint="done"><button class="bbbtn pine" data-shquick="1">Add</button></div>'+
    (ex?'<div class="seg2" style="margin-top:10px">'+ex+'</div><p class="meta" style="margin-top:8px;font-size:12.5px">Tap a name to see their page. Add as many as you like.</p>':'')+
    '<button class="btn" style="width:100%;margin-top:14px" data-shfirst="1">Find my first gift →</button></div>'}
+function backupCard(){if(S.bkDone||(S.gifts.length<5&&ppl().length<3))return "";
+  return '<div class="card bkcard"><b style="font-size:18px">Keep it safe</b><p class="meta" style="margin:2px 0 10px;font-size:13px">It all lives on this phone. Send yourself a backup link in case you lose it or switch phones.</p><div class="row"><button class="bbbtn pine sm" data-bb="backup" data-shbk="1">Send me a backup link</button><button class="bblnk" data-shbk="0">Done it</button></div></div>'}
 function appCard(){if(BB.isStandalone||S.appHide)return "";
   return '<div class="card appcard"><div class="appic sm"><img src="'+(document.querySelector('link[rel="apple-touch-icon"]')||{}).href+'" alt=""></div><div style="flex:1;min-width:0"><b style="font-size:18px">Make it an app</b><p class="meta" style="margin:2px 0 10px;font-size:13px">Put it on your home screen, even with your own photo as the icon.</p><div class="row"><a class="bbbtn pine sm" href="#app">Show me how</a><button class="bblnk" data-shapphide="1">Not now</button></div></div></div>'}
 function review(){if(S.revDone||S.gifts.length<5)return "";
@@ -1335,7 +1341,7 @@ function renderHome(){var box=document.getElementById("homeBox");if(!box)return;
   h+='<div class="card"><div class="ch"><span class="hh" style="font-size:21px">Your people</span><a class="rlink" href="#people">All →</a></div>'+P.map(function(p){var g=giftsOf(p),bt=g.filter(function(x){return x.bought}).length;
     return '<div class="prow">'+avatar(p.name)+'<div class="pmid" data-shperson="'+esc(p.id)+'"><div class="pn">'+esc(p.name)+'<span class="meta">'+(g.length?bt+" of "+g.length+" bought":"No gifts yet")+'</span></div>'+bar(g.length?bt/g.length:0)+'</div><button class="pa main sm" data-shideas="'+esc(p.name)+'">Ideas</button></div>'}).join("")+
     '<button class="bbbtn" style="margin-top:10px" data-go="people">+ Add someone</button></div>';
-  h+=appCard()+(window.WL_POSTCARD?WL_POSTCARD():"")+tools()+review();
+  h+=backupCard()+appCard()+(window.WL_POSTCARD?WL_POSTCARD():"")+tools()+review();
   box.innerHTML='<div class="homehead"><div class="lab">Your Christmas</div></div>'+h;animate(box);BB.after(box)}
 /* ---------- People ---------- */
 function renderPeople(){var box=document.getElementById("peopleBox");if(!box)return;var P=ppl(),R=window.PS_REL||{};
@@ -1364,8 +1370,20 @@ function confetti(){var cv=document.createElement("canvas");cv.className="confet
   var cols=["#9A2B2E","#3D5A45","#B98A3C","#FCF7EC","#C9A15A"],ps=[];for(var i=0;i<140;i++)ps.push({x:W/2+(Math.random()-.5)*W*.3,y:H*.55,vx:(Math.random()-.5)*28,vy:-Math.random()*38-14,r:Math.random()*6+5,a:Math.random()*6,va:(Math.random()-.5)*.4,c:cols[i%5]});
   var t=0;(function f(){x.clearRect(0,0,W,H);ps.forEach(function(p){p.vy+=1.1;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r,-p.r/2,p.r*2,p.r);x.restore()});
     if(++t<110)requestAnimationFrame(f);else cv.remove()})()}
-window.SH_CHECK=function(it){if(!it||!it.who)return;var n=String(it.who).trim().toLowerCase();var g=S.gifts.filter(function(x){return String(x.who||"").trim().toLowerCase()===n});
+window.SH_CHECK=function(it){if(window.SH_BOUGHT)SH_BOUGHT(it);if(!it||!it.who)return;var n=String(it.who).trim().toLowerCase();var g=S.gifts.filter(function(x){return String(x.who||"").trim().toLowerCase()===n});
   if(g.length&&g.every(function(x){return x.bought&&x.wrapped})&&it.wrapped){confetti();toast("All of "+it.who.trim()+"’s gifts are wrapped!")}};
+/* ---------- currency by country on first run ---------- */
+(function(){if(S.curAuto)return;S.curAuto=1;if(!S.gifts.length){var c=BB.country();S.cur={US:"$",CA:"$",AU:"$",NZ:"$",IE:"€"}[c]||"£"}save(true)})();
+/* ---------- ask what it cost ---------- */
+function paidSheet(it){var el=document.getElementById("paidSheet");if(!el){el=document.createElement("div");el.id="paidSheet";el.className="psheet";document.body.appendChild(el)}
+  el.innerHTML='<div class="shbg" data-pdx="1"></div><div class="shp"><div class="shgrab"></div><div class="hh" style="font-size:22px">Nice one. What did it cost?</div><p class="meta" style="margin:4px 0 12px">'+esc(it.idea||"This gift")+(it.who?" for "+esc(it.who):"")+'. It keeps your budget right.</p>'+
+   '<div class="qadd"><input type="text" inputmode="decimal" id="paidIn" placeholder="'+esc(C())+'0.00"><button class="bbbtn pine" data-pdsave="'+it.id+'">Save</button></div><button class="shx" data-pdx="1">Skip</button></div>';
+  requestAnimationFrame(function(){el.classList.add("on");setTimeout(function(){var i=document.getElementById("paidIn");if(i)i.focus()},300)})}
+function closePaid(){var el=document.getElementById("paidSheet");if(el)el.classList.remove("on")}
+document.addEventListener("click",function(e){var t=e.target.closest("[data-pdx],[data-pdsave]");if(!t)return;
+  if(t.dataset.pdsave){var g=S.gifts.find(function(x){return x.id===t.dataset.pdsave}),v=document.getElementById("paidIn").value.replace(/[^\d.]/g,"");if(g&&v){g.spent=v;save(true);renderAll();toast("Added to your spend")}}closePaid()});
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="paidIn"){e.preventDefault();var b=document.querySelector("[data-pdsave]");if(b)b.click()}});
+window.SH_BOUGHT=function(it){if(it&&it.bought&&!num(it.spent)&&!it.pa){it.pa=1;save(true);paidSheet(it)}};
 /* ---------- make it an app ---------- */
 (function(){var h=location.hash;if(h.indexOf("#i")!==0||h.indexOf("#ideas")===0)return;var o=BB.readBackup("#r"+h.slice(2));
   if(o&&!S.gifts.length&&!(S.people||[]).length&&!S.orders.length){S=Object.assign(fresh(),o);save(true);setTimeout(function(){toast("All set. Your planner is in the app")},600)}
@@ -1390,7 +1408,8 @@ tb.innerHTML=TABS5.map(function(t){return '<a href="#'+t[0]+'" data-t="'+t[0]+'"
 function addPerson(id){var el=document.getElementById(id);var n=el?el.value.trim():"";if(!n){if(el){el.focus();el.placeholder="Type a name first"}return}
   if(PS_FIND(n)){toast(n+" is already on your list");el.value="";return}S.people.push({id:uid(),name:n,saved:[],hidden:[]});save(true);el.value="";renderHome();renderPeople();toast(n+" added");
   var e2=document.getElementById(id);if(e2)e2.focus()}
-document.addEventListener("click",function(e){var t=e.target.closest("[data-shapphide],[data-shwpaste],[data-shperson],[data-shwask],[data-shwfind],[data-shwadd],[data-shfind],[data-shscan],[data-shquick],[data-shfirst],[data-shideas],[data-shpadd],[data-shpdel],[data-shpgift],[data-shsvadd],[data-shrev],[data-go]");if(!t)return;var d=t.dataset;
+document.addEventListener("click",function(e){var t=e.target.closest("[data-shbk],[data-shapphide],[data-shwpaste],[data-shperson],[data-shwask],[data-shwfind],[data-shwadd],[data-shfind],[data-shscan],[data-shquick],[data-shfirst],[data-shideas],[data-shpadd],[data-shpdel],[data-shpgift],[data-shsvadd],[data-shrev],[data-go]");if(!t)return;var d=t.dataset;
+  if(d.shbk){S.bkDone=true;save(true);setTimeout(renderHome,d.shbk==="1"?800:0);return}
   if(d.shapphide){S.appHide=true;save(true);renderHome();return}
   if(d.shwpaste){WL_PASTE();return}
   if(d.shperson){location.hash="#people";setTimeout(function(){var c=document.getElementById("pc-"+d.shperson);if(c){c.scrollIntoView({behavior:"smooth",block:"start"});c.classList.add("flash");setTimeout(function(){c.classList.remove("flash")},1400)}},120);return}

@@ -26,7 +26,7 @@
 </div>
 <script>
 var q=new URLSearchParams(location.search),c=q.get("c")||"ParcelCo",n=(q.get("n")||"").toUpperCase(),o=null;
-try{(JSON.parse(localStorage.getItem("bb-parcels-demo"))||{orders:[]}).orders.forEach(function(x){if(String(x.track).toUpperCase()===n)o=x})}catch(e){}
+["bb-parcels-demo","bb-parcels-v1"].forEach(function(k){try{(JSON.parse(localStorage.getItem(k))||{orders:[]}).orders.forEach(function(x){if(String(x.track).toUpperCase()===n)o=x})}catch(e){}});
 var col={ParcelCo:"#2E5BBA",SwiftPost:"#C2410C",Northway:"#0F766E"}[c]||"#2E5BBA";document.documentElement.style.setProperty("--c",col);
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function add(s,k){var d=new Date(s+"T12:00:00");d.setDate(d.getDate()+k);return iso(d)}

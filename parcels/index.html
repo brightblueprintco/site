@@ -274,7 +274,7 @@ function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("on");clearT
 
 /* ---------- carriers & tracking ---------- */
 var CR={"Royal Mail":"https://www.royalmail.com/track-your-item#/tracking-results/","Parcelforce":"https://www.parcelforce.com/track-trace?trackNumber=","Evri":"https://www.evri.com/track/parcel/","DPD":"https://track.dpd.co.uk/search?reference=","DHL":"https://www.dhl.com/gb-en/home/tracking.html?tracking-id=","UPS":"https://www.ups.com/track?tracknum=","FedEx":"https://www.fedex.com/fedextrack/?trknbr=","Yodel":"https://www.yodel.co.uk/tracking/","InPost":"https://inpost.co.uk/tracking?number=","USPS":"https://tools.usps.com/go/TrackConfirmAction?tLabels="};
-if(DEMO){DCAR.forEach(function(c){CR[c]="track.html?c="+encodeURIComponent(c)+"&n="})}
+var DCR={};DCAR.forEach(function(c){DCR[c]="track.html?c="+encodeURIComponent(c)+"&n="});
 function amz(){var c=country();return c==="US"?"www.amazon.com":c==="CA"?"www.amazon.ca":c==="AU"?"www.amazon.com.au":"www.amazon.co.uk"}
 function shopLink(f){f=String(f||"").toLowerCase();
   if(/amazon/.test(f))return {url:"https://"+amz()+"/gp/your-account/order-history",label:"Open your Amazon orders"};
@@ -283,6 +283,7 @@ function shopLink(f){f=String(f||"").toLowerCase();
 function trackInfo(v,car){v=String(v||"").trim();if(!v)return null;
   var m=v.match(/https?:\/\/[^\s]+/);if(m)return {url:m[0],label:"Track it"};
   var c=v.replace(/[\s-]/g,"").toUpperCase(),E=encodeURIComponent(c);
+  if(car&&DCR[car])return {url:DCR[car]+encodeURIComponent(c),label:"Track with "+car};
   if(car&&CR[car])return {url:CR[car]+encodeURIComponent(car==="DPD"?c.slice(0,14):c),label:"Track with "+car};
   if(/^[A-Z]{2}\d{9}GB$/.test(c))return {url:CR["Royal Mail"]+E,label:"Track with Royal Mail"};
   if(/^1Z[0-9A-Z]{16}$/.test(c))return {url:CR.UPS+E,label:"Track with UPS"};
@@ -294,7 +295,7 @@ function trackInfo(v,car){v=String(v||"").trim();if(!v)return null;
   return {url:"https://www.google.com/search?q="+encodeURIComponent("track parcel "+c),label:"Look up tracking"}}
 function bestLink(o){var ti=o.track?trackInfo(o.track,o.carrier):null,sh=shopLink(o.from);if(sh&&(!ti||/^Look up/.test(ti.label)))return sh;return ti}
 
-if(DEMO&&typeof CARRIERS!=="undefined")DCAR.forEach(function(c){CARRIERS.unshift([c,new RegExp(c,"i")])});
+if(typeof CARRIERS!=="undefined")DCAR.forEach(function(c){CARRIERS.push([c,new RegExp(c,"i")])});
 /* ---------- status helpers ---------- */
 function dstat(o){if(o.arrived)return ["Arrived","ok"];if(!o.due)return ["No date yet",""];var d=daysTo(o.due);
   if(d<0)return ["Late by "+plural(-d,"day"),"bad"];if(d===0)return ["Arriving today","now"];if(d===1)return ["Tomorrow","now"];return ["In "+plural(d,"day"),""]}

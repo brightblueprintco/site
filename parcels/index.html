@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Parcels">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F6F1E7">
+<title>Parcel &amp; Returns Tracker</title>
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<style>
+@font-face{font-family:"Fraunces";src:url(../fonts/Fraunces.ttf) format("truetype");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Fraunces";src:url(../fonts/Fraunces-Italic.ttf) format("truetype");font-style:italic;font-weight:100 900;font-display:swap}
+@font-face{font-family:"Courier Prime";src:url(../fonts/CourierPrime-Regular.ttf) format("truetype");font-display:swap}
+@font-face{font-family:"Courier Prime";src:url(../fonts/CourierPrime-Bold.ttf) format("truetype");font-weight:700;font-display:swap}
+@font-face{font-family:"Reenie";src:url(../fonts/ReenieBeanie.ttf) format("truetype");font-display:swap}
+:root{--bg:#F6F1E7;--card:#FFFDF8;--ink:#15213B;--soft:#5D6478;--line:#E4DCCB;--gold:#B8902F;--gold2:#E9D6A3;--navy:#15213B;--ok:#2F6B4F;--okb:#E2EFE7;--bad:#B23A3A;--badb:#F8E3E0;--now:#9A6B12;--nowb:#F7ECD2;--r:16px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+header.top{padding:calc(18px + env(safe-area-inset-top)) 0 6px;text-align:center}
+.kick{font:700 11px/1 "Courier Prime",monospace;letter-spacing:.32em;text-transform:uppercase;color:var(--soft)}
+.brand{font:600 32px/1.05 "Fraunces",Georgia,serif;margin:8px 0 2px;letter-spacing:-.01em}
+.brand em{font-style:italic;color:var(--gold);font-weight:500}
+.hand{font:26px/1 "Reenie",cursive;color:var(--gold)}
+h2{font:600 26px/1.15 "Fraunces",Georgia,serif;margin:22px 0 4px}
+h3{font:600 19px/1.2 "Fraunces",Georgia,serif;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+h3:before{content:"";width:4px;height:18px;border-radius:2px;background:var(--gold)}
+.sub{color:var(--soft);margin:0 0 14px}
+.meta{color:var(--soft);font-size:14px;margin:0}
+.lab{font:700 11px/1 "Courier Prime",monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+section{display:none}section.on{display:block;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:0 0 12px;box-shadow:0 1px 0 rgba(21,33,59,.04)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--navy);color:#fff;border:0;border-radius:12px;padding:13px 18px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn.gold{background:var(--gold);color:#fff}.btn.alt{background:transparent;color:var(--navy);border:1.5px solid var(--navy)}
+.btn.wide{width:100%}
+.lnk{background:none;border:0;color:var(--navy);text-decoration:underline;text-underline-offset:3px;padding:10px;cursor:pointer;font-size:14px}
+.pa{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--ink);white-space:nowrap}
+.pa.main{background:var(--navy);border-color:var(--navy);color:#fff}
+.pa.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.pa.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.pa.ghost{border-color:transparent;background:transparent;text-decoration:underline;text-underline-offset:3px;font-weight:500;color:var(--soft)}
+.pact{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;min-width:0}
+.f label{font:700 11px/1 "Courier Prime",monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--soft)}
+.f input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#fff;font-size:16px;min-height:48px}
+.f input:focus{outline:none;border-color:var(--gold)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dwrap{position:relative}.dwrap input{padding-right:44px}
+.dclr{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:var(--line);color:var(--ink);font-size:16px;line-height:1;cursor:pointer}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 4px;margin-bottom:12px}
+.stats div{text-align:center;border-left:1px dashed var(--line);padding:2px 4px}.stats div:first-child{border-left:0}
+.stats b{display:block;font:600 26px/1.1 "Fraunces",Georgia,serif}
+.stats span{font:700 9.5px/1.2 "Courier Prime",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.stats .bad b{color:var(--bad)}.stats .gold b{color:var(--gold)}
+/* add card */
+.addc{text-align:center;padding:20px 16px}
+.addc .ic{width:58px;height:58px;border-radius:16px;background:var(--nowb);color:var(--gold);display:grid;place-items:center;margin:0 auto 10px}
+.addc b{font:600 20px/1.2 "Fraunces",Georgia,serif;display:block}
+/* item cards */
+.ic2{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.ic2.done{opacity:.72}
+.dt{flex:0 0 52px;height:58px;border-radius:12px;background:var(--navy);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dt b{font:600 22px/1 "Fraunces",Georgia,serif}.dt span{font:700 10px/1.2 "Courier Prime",monospace;letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.dt.r{background:var(--gold)}.dt.m{background:var(--ok)}.dt.q{background:var(--line);color:var(--soft)}
+.im{flex:1;min-width:0}
+.it{font:600 17px/1.25 "Fraunces",Georgia,serif;word-break:break-word}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pill{font:700 10.5px/1 "Courier Prime",monospace;letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:6px;background:var(--line);color:var(--soft)}
+.pill.ok{background:var(--okb);color:var(--ok)}.pill.bad{background:var(--badb);color:var(--bad)}.pill.now{background:var(--nowb);color:var(--now)}.pill.gold{background:var(--gold2);color:#6B521A}
+.seg{display:flex;background:#EDE5D4;border-radius:999px;padding:4px;margin:0 0 14px}
+.seg button{flex:1;white-space:nowrap;border:0;background:transparent;border-radius:999px;padding:9px 4px;font-size:13px;font-weight:600;color:var(--soft);cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg button i{font-style:normal;display:inline-block;min-width:17px;padding:0 4px;border-radius:9px;background:var(--gold);color:#fff;font-size:10.5px;line-height:17px;margin-left:3px}
+.empty{text-align:center;color:var(--soft);padding:26px 12px;border:1.5px dashed var(--line);border-radius:var(--r);font-size:14.5px}
+/* money */
+.money{display:flex;align-items:center;gap:14px;background:var(--navy);color:#fff;border-radius:var(--r);padding:16px;margin-bottom:12px}
+.money b{font:600 30px/1 "Fraunces",Georgia,serif;color:var(--gold2)}
+.money p{margin:2px 0 0;font-size:13.5px;opacity:.85}
+.tip{background:var(--nowb);border-radius:12px;padding:10px 12px;font-size:13.5px;margin-top:10px;color:#5B4313}
+/* welcome */
+.steps{display:grid;gap:10px;margin:14px 0}
+.step{display:flex;gap:12px;align-items:flex-start;text-align:left}
+.step i{flex:0 0 30px;height:30px;border-radius:50%;background:var(--gold);color:#fff;font:600 15px/30px "Fraunces",Georgia,serif;font-style:normal;text-align:center}
+/* calendar */
+.cal{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.calh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.calh b{font:600 18px "Fraunces",Georgia,serif}
+.calg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.calg i{font:700 11px "Courier Prime",monospace;color:var(--soft);font-style:normal;padding:4px 0}
+.cd{aspect-ratio:1;border:0;border-radius:10px;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;position:relative}
+.cd.has{background:#F1EADB;font-weight:700}.cd.today{outline:2px solid var(--gold)}.cd.sel{background:var(--navy);color:#fff}
+.cd em{display:flex;gap:2px;margin-top:2px}.cd u{width:6px;height:6px;border-radius:50%;background:var(--navy);display:block}.cd.sel u{background:#fff}
+.cd u.r{background:var(--gold)}.cd u.a{background:var(--ok)}
+.calk{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:10px;font-size:12px;color:var(--soft)}
+.calk u{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--navy);margin-right:4px}.calk u.r{background:var(--gold)}.calk u.a{background:var(--ok)}
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--navy);padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;z-index:20}
+.tabbar a{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:3px;color:#AEB6C9;text-decoration:none;font:700 10.5px/1 "Courier Prime",monospace;letter-spacing:.06em;padding:6px 0;border-radius:12px;position:relative}
+.tabbar a.on{color:#fff;background:rgba(255,255,255,.1)}.tabbar a.on svg{color:var(--gold2)}
+.tabbar a i{position:absolute;top:2px;right:22%;min-width:16px;height:16px;border-radius:8px;background:var(--gold);color:#fff;font:700 10px/16px sans-serif;font-style:normal;padding:0 4px}
+/* sheet */
+.shade{position:fixed;inset:0;background:rgba(21,33,59,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center;animation:fd .2s}
+@keyframes fd{from{opacity:0}}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));animation:su .25s ease}
+@keyframes su{from{transform:translateY(40px);opacity:.4}}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 10px}
+.sheet h2{margin-top:6px}
+.sx{float:right;border:0;background:var(--line);width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;margin-top:6px}
+.found{background:var(--okb);color:var(--ok);border-radius:12px;padding:10px 12px;font-size:14px;margin:0 0 12px}
+.more{border-top:1px dashed var(--line);margin-top:4px;padding-top:12px}
+.scan{position:relative;max-height:240px;overflow:hidden;border-radius:12px;margin:8px 0}
+.scan img{width:100%;display:block;opacity:.85}
+.scan i{position:absolute;left:0;right:0;height:3px;background:var(--gold);box-shadow:0 0 14px var(--gold);animation:sc 1.6s ease-in-out infinite}
+@keyframes sc{0%{top:0}50%{top:calc(100% - 3px)}100%{top:0}}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;visibility:hidden;transition:.25s;z-index:60;max-width:88vw;text-align:center}
+.toast.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
+/* more tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink)}
+.tile .ti{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--nowb);color:var(--gold)}
+.tile:nth-child(2n) .ti{background:#E5E9F2;color:var(--navy)}
+.tile b{font:600 16px/1.2 "Fraunces",Georgia,serif}.tile span{font-size:12.5px;color:var(--soft)}
+.faq b{display:block;font:600 16px "Fraunces",Georgia,serif;margin-bottom:4px}.faq p{margin:0 0 14px;color:var(--soft);font-size:14.5px}
+/* gate */
+body.gated>*:not(#gate){display:none!important}
+#gate{max-width:440px;margin:0 auto;padding:calc(40px + env(safe-area-inset-top)) 18px 40px;text-align:center}
+#gate .card{text-align:left}
+.qadd{display:flex;gap:8px}.qadd input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:16px;text-transform:uppercase}
+.etsy{display:block;margin-top:14px;background:var(--navy);color:#fff;border-radius:var(--r);padding:16px;text-decoration:none;font-size:14px}
+.etsy b{font:600 18px "Fraunces",Georgia,serif;color:var(--gold2)}
+.btt{position:fixed;right:16px;bottom:calc(92px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;border:0;background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.15);font-size:20px;cursor:pointer;opacity:0;visibility:hidden;transition:.2s;z-index:15}
+.btt.on{opacity:1;visibility:visible}
+.appic{width:76px;height:76px;border-radius:18px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.15);flex:0 0 76px}
+.appic img{width:100%;height:100%;display:block}
+.hrow{display:flex;gap:14px;align-items:center}
+ol.how{padding-left:20px;margin:8px 0 0}ol.how li{margin-bottom:8px}
+@media (max-width:370px){.brand{font-size:28px}.stats b{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="kick">BrightBlueprintCo</div><div class="brand">Parcels <em>&amp; Returns</em></div><div class="hand">every parcel, every refund</div></header>
+
+<section id="home"><div id="homeBox"></div></section>
+
+<section id="deliv">
+<h2>Deliveries</h2>
+<p class="sub">Everything on its way, and when it lands.</p>
+<div id="delivBox"></div>
+</section>
+
+<section id="returns">
+<h2>Returns &amp; refunds</h2>
+<p class="sub">Never miss a return deadline. Never forget a refund.</p>
+<div id="retBox"></div>
+</section>
+
+<section id="more">
+<h2>More</h2>
+<p class="sub">Everything else in your tracker.</p>
+<div id="moreBox"></div>
+</section>
+
+<section id="app">
+<h2>Make it an app</h2>
+<p class="sub">Your tracker, one tap from your home screen.</p>
+<div id="appBox"></div>
+</section>
+
+<section id="help">
+<h2>Help</h2>
+<p class="sub">Quick answers.</p>
+<div id="helpBox"></div>
+</section>
+</div>
+
+<nav class="tabbar" role="navigation">
+<a href="#home" data-tab="home"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6.5 8 6.5V20h-5.5v-5.5h-5V20H4z"/></svg>Home</a>
+<a href="#deliv" data-tab="deliv"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></svg>Deliveries</a>
+<a href="#returns" data-tab="returns"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7H4.5V2.5"/><path d="M4.8 7A8.5 8.5 0 1 1 3.5 12"/><path d="M12 8v4.5l3 1.8"/></svg>Returns</a>
+<a href="#more" data-tab="more"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>More</a>
+</nav>
+<input type="file" id="shotFile" accept="image/*" hidden>
+<button class="btt" id="btt" aria-label="Back to top">↑</button>
+<div class="toast" id="toast"></div>
+<script>
+var MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,sept:8,oct:9,nov:10,dec:11};
+var SHOPS=["Amazon","John Lewis","Argos","Etsy","eBay","Next","Marks & Spencer","M&S","ASOS","Boots","Currys","Very","Smyths","Hamleys","The Entertainer","Lego","Apple","Nike","Adidas","Zara","H&M","JD Sports","Wayfair","IKEA","Dunelm","Notonthehighstreet","Selfridges","Harrods","Liberty","Superdrug","Lush","Waterstones","Sainsbury's","Tesco","Asda","Primark","Target","Walmart","Best Buy","Kohl's","Macy's","Costco","Sephora","Ulta","Temu","Shein","Uniqlo","Matalan","TK Maxx","The Works","Hobbycraft","Lakeland","Oliver Bonas","Ted Baker","Mango","River Island","New Look","Pandora","Gymshark"];
+var CARRIERS=[["Royal Mail",/royal\s*mail/i],["Parcelforce",/parcelforce/i],["Evri",/evri|hermes/i],["DPD",/\bdpd\b/i],["DHL",/\bdhl\b/i],["UPS",/\bups\b/i],["FedEx",/fedex/i],["USPS",/usps/i],["Yodel",/yodel/i],["Amazon Logistics",/amazon\s*(logistics|delivery)/i],["InPost",/inpost/i]];
+function parseDate(t){var now=new Date(),y=now.getFullYear(),m;var low=t.toLowerCase();
+  if(/\btoday\b/.test(low))return iso(now);if(/\btomorrow\b/.test(low)){var d=new Date(now);d.setDate(d.getDate()+1);return iso(d)}
+  var re=/(\d{1,2})(?:st|nd|rd|th)?\s+(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?(?:\s+(\d{4}))?/i;m=t.match(re);if(m)return mk(+m[1],MONTHS[m[2].toLowerCase()],m[3]);
+  re=/(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(\d{4}))?/i;m=t.match(re);if(m)return mk(+m[2],MONTHS[m[1].toLowerCase()],m[3]);
+  m=t.match(/\b(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})\b/);if(m){var a=+m[1],b=+m[2],yy=+m[3];if(yy<100)yy+=2000;var us=country()==="US";return mk(us?b:a,(us?a:b)-1,yy)}
+  return "";
+  function mk(d,mo,yy){var Y=yy?+yy:y;var dt=new Date(Y,mo,d);if(!yy&&dt<new Date(now.getFullYear(),now.getMonth(),now.getDate()-60))dt.setFullYear(Y+1);return iso(dt)}
+  function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}}
+function findTracking(t){var toks=t.replace(/[^\w\s-]/g," ").split(/\s+/);var joined=t.replace(/\s+/g," ");
+  var pats=[/\b\d{14}[A-Z]\b/,/\bJD\d{16}\b/,/\bJJD\d{10,}\b/,/\b[A-Z]{2}\d{9}GB\b/,/\b1Z[0-9A-Z]{16}\b/,/\bH[0-9A-Z]{15}\b/,/\bTBA\d{9,12}\b/,/\b9[1-5]\d{18,24}\b/,/\b\d{14}\b/,/\b\d{12}\b/,/\b\d{15}\b/,/\b\d{10}\b/];
+  var J=joined.toUpperCase().replace(/(\d)\s(?=\d)/g,"$1").replace(/\b(H)O(?=\d)/g,"$10").replace(/(\d)O(?=\d)/g,"$10").replace(/(\d)O(?=\d)/g,"$10");
+  for(var p=0;p<pats.length;p++){var m=J.match(pats[p]);if(m)return m[0]}
+  var lab=t.match(/track(?:ing)?\s*(?:number|no\.?|#|id|code)?\s*[:#]?\s*([A-Z0-9-]{8,30})/i);return lab?lab[1].replace(/-/g,""):""}
+function parseShot(t){var o={item:"",from:"",due:"",track:"",order:""};
+  var AMB={"Next":1,"Very":1,"Boots":1,"Apple":1,"Target":1,"Lush":1,"Liberty":1,"Lego":1};var t2=t.replace(/next\s*(day|working|business|delivery|week)/gi," ");
+  SHOPS.some(function(s){if(new RegExp("\\b"+s.replace(/[&]/g,"\\&").replace(/'/g,".?")+"\\b",AMB[s]?"":"i").test(t2)){o.from=s==="M&S"?"Marks & Spencer":s;return true}});
+  var car="";CARRIERS.some(function(c){if(c[1].test(t)){car=c[0];return true}});o.carrier=car;
+  if(!o.from){var fm=t.replace(/from\s*\n+\s*/gi,"from ").match(/(?:parcel|order|package|delivery|purchase|items?|shipment)\s+from[:\s]+([A-Za-z0-9&'’.\- ]{2,32})/i)||t.match(/^\s*(?:from|sold by|seller)\s*[:\-]\s*([A-Za-z0-9&'’.\- ]{2,32})\s*$/im);
+    if(fm){var fv=fm[1].replace(/\b(is|has|was|will|on|your|the|been|arriving|delivered|dispatched|shipped)\b.*$/i,"").trim();if(fv.length>1&&!CARRIERS.some(function(c){return c[1].test(fv)}))o.from=fv.replace(/\b([a-z])/g,function(m){return m.toUpperCase()})}}
+  var lines=t.split(/\n/).map(function(x){return x.trim()}).filter(Boolean);
+  var dl=lines.filter(function(l){return /arriv|deliver|expected|estimated|due|get it|out for|dispatched|shipped/i.test(l)});
+  for(var i=0;i<dl.length&&!o.due;i++){o.due=parseDate(dl[i]+" "+(lines[lines.indexOf(dl[i])+1]||""))} if(!o.due)o.due=parseDate(t);
+  o.track=findTracking(t);
+  var om=t.match(/order\s*(?:number|no\.?|#|id)?\s*[:#]?\s*([A-Z0-9][A-Z0-9-]{5,24})/i);if(om&&!/^(details|summary|confirm)/i.test(om[1]))o.order=om[1];
+  var il=lines.find(function(l){if(l.length<10||l.length>90)return false;if(o.from&&l.toLowerCase().indexOf(o.from.toLowerCase())>=0)return false;
+    if(/order|deliver|arriv|track|dispatch|ship|total|price|£|\$|€|qty|quantity|address|hello|hi |thank|view|return|help|account|@|http|www|\.co|\.com|package|parcel|on its way|on the way|update|scheduled|expected|your |monday|tuesday|wednesday|thursday|friday|saturday|sunday|between|evri|dpd|ups|usps|fedex|royal mail|courier|driver|search|ask a question|sign in|menu|basket|cart|buy again|prime|inbox|reply|forward|unsubscribe|today|tomorrow|yesterday|am$|pm$/i.test(l))return false;
+    var letters=(l.match(/[a-z]/gi)||[]).length,words=(l.match(/[a-z]{3,}/gi)||[]);
+    if(letters/l.length<.7||words.length<2)return false;
+    if(/[{}|\\<>~^_=]/.test(l))return false;
+    if(SHOPS.some(function(sh){return l.toLowerCase().replace(/[^a-z& ]/g,"").trim()===sh.toLowerCase()}))return false;
+    return true});
+  o.item=il||(o.order?"Order "+o.order:"");if(/^(order|parcel|package|shipment)\b/i.test(o.item))o.item="";return o}
+/* ===== Parcel & Returns Tracker (BrightBlueprintCo) ===== */
+var ETSY="https://www.etsy.com/shop/BrightBlueprintCo";
+var KEY="bb-parcels-v1";
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function today(){return iso(new Date())}
+function addDays(s,n){var d=new Date((s||today())+"T12:00:00");d.setDate(d.getDate()+n);return iso(d)}
+function daysTo(s){var d=new Date(s+"T00:00:00"),n=new Date();n.setHours(0,0,0,0);return Math.round((d-n)/864e5)}
+function fd(s,long){if(!s)return "";var d=new Date(s+"T12:00:00");return d.toLocaleDateString("en-GB",long?{weekday:"long",day:"numeric",month:"long"}:{weekday:"short",day:"numeric",month:"short"})}
+function dd(s){var d=new Date(s+"T12:00:00");return {day:d.getDate(),mon:d.toLocaleDateString("en-GB",{month:"short"})}}
+function plural(n,w){return n+" "+w+(n===1?"":"s")}
+var CC=null;function country(){if(CC)return CC;var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
+  if(/^Europe\/(London|Belfast|Guernsey|Jersey|Isle_of_Man)$/.test(tz))CC="GB";else if(tz==="Europe/Dublin")CC="IE";
+  else if(/^America\/(Toronto|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Montreal|Moncton)$/.test(tz))CC="CA";
+  else if(/^(America\/|Pacific\/Honolulu)/.test(tz))CC="US";else if(/^Australia\//.test(tz))CC="AU";else if(/^Europe\//.test(tz))CC="EU";else CC="GB";return CC}
+function load(){var s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  s=s||{};s.orders=s.orders||[];if(!s.cur){var c=country();s.cur=c==="GB"?"£":(c==="IE"||c==="EU")?"€":"$"}
+  if(!s.win)s.win=(["GB","IE","EU"].indexOf(country())>=0)?14:30;return s}
+var S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function money(n){n=+n||0;return S.cur+(n%1?n.toFixed(2):n.toFixed(0))}
+function byId(id){return S.orders.find(function(o){return o.id===id})}
+var $=function(q){return document.querySelector(q)};
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("on")},2400)}
+
+/* ---------- carriers & tracking ---------- */
+var CR={"Royal Mail":"https://www.royalmail.com/track-your-item#/tracking-results/","Parcelforce":"https://www.parcelforce.com/track-trace?trackNumber=","Evri":"https://www.evri.com/track/parcel/","DPD":"https://track.dpd.co.uk/search?reference=","DHL":"https://www.dhl.com/gb-en/home/tracking.html?tracking-id=","UPS":"https://www.ups.com/track?tracknum=","FedEx":"https://www.fedex.com/fedextrack/?trknbr=","Yodel":"https://www.yodel.co.uk/tracking/","InPost":"https://inpost.co.uk/tracking?number=","USPS":"https://tools.usps.com/go/TrackConfirmAction?tLabels="};
+function amz(){var c=country();return c==="US"?"www.amazon.com":c==="CA"?"www.amazon.ca":c==="AU"?"www.amazon.com.au":"www.amazon.co.uk"}
+function shopLink(f){f=String(f||"").toLowerCase();
+  if(/amazon/.test(f))return {url:"https://"+amz()+"/gp/your-account/order-history",label:"Open your Amazon orders"};
+  if(/etsy/.test(f))return {url:"https://www.etsy.com/your/purchases",label:"Open your Etsy purchases"};
+  if(/ebay/.test(f))return {url:"https://www.ebay.co.uk/mye/myebay/purchase",label:"Open your eBay purchases"};return null}
+function trackInfo(v,car){v=String(v||"").trim();if(!v)return null;
+  var m=v.match(/https?:\/\/[^\s]+/);if(m)return {url:m[0],label:"Track it"};
+  var c=v.replace(/[\s-]/g,"").toUpperCase(),E=encodeURIComponent(c);
+  if(car&&CR[car])return {url:CR[car]+encodeURIComponent(car==="DPD"?c.slice(0,14):c),label:"Track with "+car};
+  if(/^[A-Z]{2}\d{9}GB$/.test(c))return {url:CR["Royal Mail"]+E,label:"Track with Royal Mail"};
+  if(/^1Z[0-9A-Z]{16}$/.test(c))return {url:CR.UPS+E,label:"Track with UPS"};
+  if(/^H[0-9A-Z]{15}$/.test(c))return {url:CR.Evri+E,label:"Track with Evri"};
+  if(/^\d{14}[A-Z]?$/.test(c))return {url:CR.DPD+encodeURIComponent(c.slice(0,14)),label:"Track with DPD"};
+  if(/^(9[2-5])\d{18,24}$/.test(c))return {url:CR.USPS+E,label:"Track with USPS"};
+  if(/^(\d{12}|\d{15})$/.test(c))return {url:CR.FedEx+E,label:"Track with FedEx"};
+  if(/^TBA\d+/.test(c))return {url:"https://"+amz()+"/gp/your-account/order-history",label:"Track in your Amazon orders"};
+  return {url:"https://www.google.com/search?q="+encodeURIComponent("track parcel "+c),label:"Look up tracking"}}
+function bestLink(o){var ti=o.track?trackInfo(o.track,o.carrier):null,sh=shopLink(o.from);if(sh&&(!ti||/^Look up/.test(ti.label)))return sh;return ti}
+
+/* ---------- status helpers ---------- */
+function dstat(o){if(o.arrived)return ["Arrived","ok"];if(!o.due)return ["No date yet",""];var d=daysTo(o.due);
+  if(d<0)return ["Late by "+plural(-d,"day"),"bad"];if(d===0)return ["Arriving today","now"];if(d===1)return ["Tomorrow","now"];return ["In "+plural(d,"day"),""]}
+function retLeft(o){return o.retBy?daysTo(o.retBy):null}
+function deciding(o){return o.arrived&&!o.rs&&o.retBy&&daysTo(o.retBy)>=0}
+function owed(o){return +(o.refAmt||o.price)||0}
+function sinceDays(s){return s?-daysTo(s):0}
+function counts(){var up=S.orders.filter(function(o){return !o.arrived}),send=S.orders.filter(function(o){return o.rs==="return"}),post=S.orders.filter(function(o){return o.rs==="posted"});
+  return {up:up,today:up.filter(function(o){return o.due&&daysTo(o.due)===0}),late:up.filter(function(o){return o.due&&daysTo(o.due)<0}),arr:S.orders.filter(function(o){return o.arrived}),
+    send:send,post:post,dec:S.orders.filter(deciding),done:S.orders.filter(function(o){return o.rs==="refunded"}),
+    dueWeek:S.orders.filter(function(o){return (o.rs==="return"||deciding(o))&&o.retBy&&daysTo(o.retBy)>=0&&daysTo(o.retBy)<=7}),
+    waiting:post.reduce(function(a,o){return a+owed(o)},0),back:S.orders.filter(function(o){return o.rs==="refunded"}).reduce(function(a,o){return a+owed(o)},0)}}
+
+/* ---------- icons ---------- */
+var IC={shot:'<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M9 7h6M9 10.5h6M9 14h3.5"/></svg>',
+ cal:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+ move:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="14" rx="2"/><rect x="13" y="6" width="8" height="14" rx="2"/><path d="M9 11h6m-2-2l2 2-2 2"/></svg>',
+ app:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>',
+ help:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4M12 16.8v.2"/></svg>',
+ cur:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M14.5 8.5a3 3 0 0 0-5 2.2v4.8h5.5M8.5 12.5h4.5"/></svg>',
+ tidy:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/></svg>',
+ gift:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-1.5-3-5-3.5-5-1.2C7 8 9 8 12 8zm0 0c1.5-3 5-3.5 5-1.2C17 8 15 8 12 8z"/></svg>'};
+
+/* ---------- cards ---------- */
+function dateBox(s,cls,fallback){if(!s)return '<div class="dt q"><b>?</b><span>'+(fallback||"date")+'</span></div>';var x=dd(s);return '<div class="dt '+(cls||"")+'"><b>'+x.day+'</b><span>'+esc(x.mon)+'</span></div>'}
+function metaLine(o){return esc([o.from,o.carrier?"via "+o.carrier:"",o.to?"to "+o.to:"",o.price?money(o.price):""].filter(Boolean).join(" · ")||"Tap Edit to add details")}
+function retPill(o){if(o.rs==="keep"||o.rs==="refunded"||o.rs==="posted")return "";var r=retLeft(o);if(r===null)return "";
+  if(r<0)return '<span class="pill">Return window closed</span>';if(r<=3)return '<span class="pill bad">'+(r===0?"Last day to return":"Return in "+plural(r,"day"))+'</span>';
+  return '<span class="pill gold">Return by '+esc(fd(o.retBy))+'</span>'}
+function delivCard(o){var st=dstat(o),ti=bestLink(o);
+  return '<div class="ic2'+(o.arrived?" done":"")+'" id="o-'+o.id+'">'+dateBox(o.arrived?(o.arrOn||o.due):o.due,o.arrived?"m":"")+
+   '<div class="im"><div class="it">'+esc(o.item||"Untitled order")+'</div><div class="meta">'+metaLine(o)+'</div>'+
+   '<div class="pills"><span class="pill '+st[1]+'">'+esc(st[0])+'</span>'+(o.arrived?retPill(o):"")+(o.rs==="return"?'<span class="pill now">Sending back</span>':"")+(o.rs==="posted"?'<span class="pill now">Refund pending</span>':"")+(o.rs==="refunded"?'<span class="pill ok">Refunded</span>':"")+'</div>'+
+   '<div class="pact">'+(ti&&!o.arrived?'<a class="pa main" href="'+esc(ti.url)+'" target="_blank" rel="noopener">'+esc(ti.label)+' →</a>':'')+
+   (o.due&&!o.arrived?'<button class="pa" data-alert="'+o.id+'">Alert me</button>':'')+
+   (!o.arrived?'<button class="pa" data-arr="'+o.id+'">Mark arrived</button>':'')+
+   (o.arrived&&!o.rs?'<button class="pa gold" data-sendback="'+o.id+'">Return it</button>':'')+
+   (o.arrived&&!o.rs&&o.retBy&&daysTo(o.retBy)>=0?'<button class="pa" data-keep="'+o.id+'">Keeping it</button>':'')+
+   (o.arrived?'<button class="pa ghost" data-arr="'+o.id+'">Not arrived</button>':'')+
+   '<button class="pa ghost" data-edit="'+o.id+'">Edit</button></div></div></div>'}
+function retCard(o){var h='<div class="ic2'+(o.rs==="refunded"?" done":"")+'" id="r-'+o.id+'">',r=retLeft(o);
+  if(o.rs==="return"||(!o.rs&&deciding(o))){h+=dateBox(o.retBy,"r","no date");
+    var urgent=r!==null&&r<=3;
+    h+='<div class="im"><div class="it">'+esc(o.item||"Untitled order")+'</div><div class="meta">'+metaLine(o)+'</div><div class="pills">'+
+      (r===null?'<span class="pill">Add a return-by date</span>':r<0?'<span class="pill bad">Deadline passed '+esc(fd(o.retBy))+'</span>':'<span class="pill '+(urgent?"bad":"gold")+'">'+(r===0?"Last day today":plural(r,"day")+" left")+'</span>')+
+      (o.rs==="return"?'<span class="pill now">Sending back</span>':'<span class="pill">Still deciding</span>')+'</div>'+
+      '<div class="pact">'+(o.rs==="return"?'<button class="pa main" data-posted="'+o.id+'">I’ve posted it</button><button class="pa" data-keep="'+o.id+'">Keeping it after all</button>':'<button class="pa gold" data-sendback="'+o.id+'">Send it back</button><button class="pa" data-keep="'+o.id+'">Keeping it</button>')+
+      (o.retBy&&r>=0?'<button class="pa" data-retalert="'+o.id+'">Remind me</button>':'')+'<button class="pa ghost" data-edit="'+o.id+'">Edit</button></div></div></div>';return h}
+  if(o.rs==="posted"){var s=sinceDays(o.postedOn),ti=o.rtrack?trackInfo(o.rtrack,o.rcar):null,late=s>14;
+    h+=dateBox(o.postedOn,"","posted")+'<div class="im"><div class="it">'+esc(o.item||"Untitled order")+'</div><div class="meta">'+esc([o.from,"posted "+(s===0?"today":plural(s,"day")+" ago"),o.rcar?"via "+o.rcar:""].filter(Boolean).join(" · "))+'</div>'+
+      '<div class="pills"><span class="pill '+(late?"bad":"now")+'">'+(late?"Refund overdue?":"Waiting for "+(owed(o)?money(owed(o)):"refund"))+'</span></div>'+
+      (late?'<div class="tip">It’s been '+plural(s,"day")+'. Most UK online shops have to refund within 14 days of getting your return back, or of you showing proof you sent it. Worth a polite chase, with your proof of postage handy.</div>':'')+
+      '<div class="pact"><button class="pa main" data-refund="'+o.id+'">Refund landed</button>'+(ti?'<a class="pa" href="'+esc(ti.url)+'" target="_blank" rel="noopener">'+esc(ti.label.replace("Track","Track return"))+' →</a>':'')+(shopLink(o.from)?'<a class="pa" href="'+esc(shopLink(o.from).url)+'" target="_blank" rel="noopener">'+esc(shopLink(o.from).label)+' →</a>':'')+'<button class="pa ghost" data-edit="'+o.id+'">Edit</button></div></div></div>';return h}
+  if(o.rs==="refunded"){h+=dateBox(o.refOn,"m")+'<div class="im"><div class="it">'+esc(o.item||"Untitled order")+'</div><div class="meta">'+esc([o.from,"refunded "+fd(o.refOn)].filter(Boolean).join(" · "))+'</div><div class="pills"><span class="pill ok">'+(owed(o)?money(owed(o))+" back":"Refunded")+'</span></div><div class="pact"><button class="pa ghost" data-undo="'+o.id+'">Undo</button></div></div></div>';return h}
+  return ""}
+
+/* ---------- home ---------- */
+function upcoming(){var L=[];S.orders.forEach(function(o){
+  if(!o.arrived&&o.due){var d=daysTo(o.due);if(d<=7)L.push({d:d,o:o,k:"d"})}
+  if((o.rs==="return"||deciding(o))&&o.retBy){var r=daysTo(o.retBy);if(r>=0&&r<=7)L.push({d:r,o:o,k:"r"})}
+  if(o.rs==="posted"&&sinceDays(o.postedOn)>14)L.push({d:-99,o:o,k:"c"})});
+  return L.sort(function(a,b){return a.d-b.d})}
+function upRow(x){var o=x.o,t,cl,go;
+  if(x.k==="d"){t=x.d<0?"Late: "+(o.item||"an order"):x.d===0?"Arriving today: "+(o.item||"an order"):x.d===1?"Tomorrow: "+(o.item||"an order"):fd(o.due)+": "+(o.item||"an order");cl=x.d<0?"bad":x.d<=1?"now":"";go="deliv|o-"+o.id}
+  else if(x.k==="r"){t=(x.d===0?"Last day to return ":"Return by "+fd(o.retBy)+": ")+(o.item||"an order");cl=x.d<=3?"bad":"gold";go="returns|r-"+o.id}
+  else{t="Chase your refund: "+(o.item||"an order");cl="bad";go="returns|r-"+o.id}
+  return '<button class="ic2" style="width:100%;text-align:left;align-items:center;cursor:pointer" data-goto="'+go+'"><span class="pill '+cl+'" style="flex:0 0 auto">'+(x.k==="d"?"Delivery":x.k==="r"?"Return":"Refund")+'</span><span style="flex:1;font-size:15px">'+esc(t)+'</span><span style="color:var(--soft)">›</span></button>'}
+function addCard(){return '<div class="card addc"><div class="ic">'+IC.shot+'</div><b>Screenshot it, we’ll fill it in</b><p class="meta" style="margin:4px 0 14px">Delivery email, text, app or order confirmation. It’s read on your phone, never uploaded.</p><button class="btn wide" data-shot="1">Read a screenshot</button><button class="lnk" data-new="1">Type it in instead</button></div>'}
+function standalone(){return (window.navigator.standalone===true)||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)}
+function renderHome(){var c=counts(),h="";
+  if(!S.orders.length){h+='<div class="card" style="text-align:center"><b style="font:600 22px/1.2 Fraunces,Georgia,serif">Every parcel and refund, in one place</b><div class="steps">'+
+    '<div class="step"><i>1</i><div><b>Screenshot any delivery or order email</b><p class="meta">It reads the shop, the date and the tracking number for you.</p></div></div>'+
+    '<div class="step"><i>2</i><div><b>Track it in one tap</b><p class="meta">Straight to the right carrier’s tracking page, with an alert on the day.</p></div></div>'+
+    '<div class="step"><i>3</i><div><b>Never miss a return or a refund</b><p class="meta">Return deadlines counted down, refunds you’re owed added up, and a nudge when it’s time to chase.</p></div></div></div></div>';}
+  else h+='<div class="stats"><div><b>'+c.up.length+'</b><span>On the way</span></div><div><b>'+c.today.length+'</b><span>Today</span></div><div class="'+(c.dueWeek.length?"bad":"")+'"><b>'+c.dueWeek.length+'</b><span>Returns due</span></div><div class="gold"><b>'+(c.waiting?S.cur+Math.round(c.waiting):"0")+'</b><span>Owed back</span></div></div>';
+  h+=addCard();
+  if(c.post.length)h+='<a class="money" href="#returns" style="text-decoration:none"><div style="flex:1"><b>'+money(c.waiting)+'</b><p>owed back to you across '+plural(c.post.length,"return")+'</p></div><span style="font-size:22px;color:var(--gold2)">›</span></a>';
+  var up=upcoming();if(S.orders.length){h+='<h3>Coming up</h3>'+(up.length?up.map(upRow).join(""):'<div class="empty">Nothing due in the next 7 days. Lovely.</div>')}
+  if(c.back)h+='<p class="meta" style="text-align:center;margin:14px 0 0">'+money(c.back)+' refunded so far. Nice work.</p>';
+  if(!standalone()&&!S.appHide&&S.orders.length)h+='<div class="card hrow" style="margin-top:14px"><div class="appic" style="width:56px;height:56px;flex:0 0 56px;border-radius:14px"><img src="icon-180.png" alt=""></div><div style="flex:1"><b>Make it an app</b><p class="meta" style="font-size:13px">One tap from your home screen.</p><div class="pact" style="margin-top:8px"><a class="pa main" href="#app">Show me how</a><button class="pa ghost" data-apphide="1">Not now</button></div></div></div>';
+  $("#homeBox").innerHTML=h}
+
+/* ---------- deliveries ---------- */
+var V={dv:"up",rv:"send",m:null,sel:null};
+function cal(){var now=new Date();if(!V.m)V.m=new Date(now.getFullYear(),now.getMonth(),1);var y=V.m.getFullYear(),m=V.m.getMonth();
+  var first=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate(),by={};
+  S.orders.forEach(function(o){if(o.due&&!o.arrived)(by[o.due]=by[o.due]||[]).push(["d",o]);if(o.arrived&&(o.arrOn||o.due))(by[o.arrOn||o.due]=by[o.arrOn||o.due]||[]).push(["a",o]);
+    if(o.retBy&&(o.rs==="return"||deciding(o)))(by[o.retBy]=by[o.retBy]||[]).push(["r",o])});
+  var h='<div class="cal"><div class="calh"><button class="pa ghost" data-mon="-1" aria-label="Previous month">‹</button><b>'+V.m.toLocaleDateString("en-GB",{month:"long",year:"numeric"})+'</b><button class="pa ghost" data-mon="1" aria-label="Next month">›</button></div><div class="calg">'+["M","T","W","T","F","S","S"].map(function(x){return '<i>'+x+'</i>'}).join("");
+  for(var i=0;i<first;i++)h+='<span></span>';
+  for(var d=1;d<=days;d++){var k=iso(new Date(y,m,d)),ev=by[k]||[];h+='<button class="cd'+(k===today()?" today":"")+(V.sel===k?" sel":"")+(ev.length?" has":"")+'" data-day="'+k+'">'+d+(ev.length?'<em>'+ev.slice(0,3).map(function(e){return '<u class="'+(e[0]==="r"?"r":e[0]==="a"?"a":"")+'"></u>'}).join("")+'</em>':'')+'</button>'}
+  h+='</div><div class="calk"><span><u></u>Delivery</span><span><u class="a"></u>Arrived</span><span><u class="r"></u>Last day to return</span></div></div>';
+  if(V.sel){var ev2=by[V.sel]||[];h+='<p class="lab" style="margin:16px 0 10px">'+esc(fd(V.sel,1))+'</p>'+(ev2.length?ev2.map(function(e){return e[0]==="r"?retCard(e[1]):delivCard(e[1])}).join(""):'<p class="meta">Nothing on this day.</p>')}
+  else h+='<p class="meta" style="margin-top:10px;text-align:center">Tap a day to see what’s due.</p>';return h}
+function renderDeliv(){var c=counts(),h=addCard();
+  h+='<div class="stats"><div><b>'+c.up.length+'</b><span>On the way</span></div><div><b>'+c.today.length+'</b><span>Today</span></div><div class="'+(c.late.length?"bad":"")+'"><b>'+c.late.length+'</b><span>Late</span></div><div><b>'+c.arr.length+'</b><span>Arrived</span></div></div>';
+  h+='<div class="seg">'+[["up","On the way"],["cal","Calendar"],["arr","Arrived"]].map(function(x){return '<button class="'+(V.dv===x[0]?"on":"")+'" data-dv="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
+  var up=c.up.slice().sort(function(a,b){return String(a.due||"9").localeCompare(String(b.due||"9"))}),ar=c.arr.slice().sort(function(a,b){return String(b.arrOn||b.due||"").localeCompare(String(a.arrOn||a.due||""))});
+  if(V.dv==="up")h+=up.length?up.map(delivCard).join(""):'<div class="empty">Nothing on the way. Screenshot your next delivery email to add it.</div>';
+  if(V.dv==="arr")h+=ar.length?ar.map(delivCard).join(""):'<div class="empty">Nothing’s arrived yet.</div>';
+  if(V.dv==="cal")h+=cal();
+  if(up.some(function(o){return o.due})||S.orders.some(function(o){return o.rs==="return"||deciding(o)}))h+='<button class="btn alt wide" style="margin-top:14px" data-allcal="1">'+IC.cal+' Add everything to my calendar</button><p class="meta" style="text-align:center;margin-top:6px;font-size:12.5px">Deliveries pop up at 8am on the day. Return deadlines remind you two days before.</p>';
+  $("#delivBox").innerHTML=h}
+
+/* ---------- returns ---------- */
+function renderRet(){var c=counts(),h="";
+  if(c.post.length)h+='<div class="money"><div style="flex:1"><b>'+money(c.waiting)+'</b><p>owed back to you across '+plural(c.post.length,"return")+'</p></div></div>';
+  var send=c.dec.concat(c.send).sort(function(a,b){return String(a.retBy||"9").localeCompare(String(b.retBy||"9"))});
+  h+='<div class="seg">'+[["send","To send back",send.length],["wait","Refunds due",c.post.length],["done","Refunded",c.done.length]].map(function(x){return '<button class="'+(V.rv===x[0]?"on":"")+'" data-rv="'+x[0]+'">'+x[1]+(x[2]&&x[0]!=="done"?'<i>'+x[2]+'</i>':'')+'</button>'}).join("")+'</div>';
+  if(V.rv==="send"){h+=send.length?send.map(retCard).join(""):'<div class="empty">No return deadlines running. When a parcel arrives we start counting down its return window for you.</div>';
+    if(c.dec.length)h+='<p class="meta" style="font-size:12.5px;margin-top:4px">“Still deciding” items are things that arrived recently. Return windows start at '+plural(S.win,"day")+' from delivery. Many shops give longer, so tap Edit to change the date.</p>'}
+  if(V.rv==="wait"){var w=c.post.slice().sort(function(a,b){return String(a.postedOn||"").localeCompare(String(b.postedOn||""))});h+=w.length?w.map(retCard).join(""):'<div class="empty">No refunds waiting. When you post something back, tap “I’ve posted it” and we’ll keep an eye on the money.</div>'}
+  if(V.rv==="done"){var d=c.done.slice().sort(function(a,b){return String(b.refOn||"").localeCompare(String(a.refOn||""))});h+=(c.back?'<p class="meta" style="margin-bottom:10px"><b>'+money(c.back)+'</b> back in your account so far.</p>':'')+(d.length?d.map(retCard).join(""):'<div class="empty">Refunds you’ve had back will show here.</div>')}
+  h+='<button class="btn alt wide" style="margin-top:14px" data-newret="1">Add a return by hand</button><p class="meta" style="text-align:center;font-size:12.5px;margin-top:6px">For something you bought in a shop, or didn’t track here.</p>';
+  $("#retBox").innerHTML=h}
+
+/* ---------- more / app / help ---------- */
+function renderMore(){var tiles=[["allcal",IC.cal,"Add to calendar","Every delivery and return deadline"],["#app",IC.app,"Make it an app","One tap from your home screen"],["backup",IC.move,"Back up / move phones","Copy a link with all your parcels"],["cur",IC.cur,"Currency: "+S.cur,"Tap to switch"],["tidy",IC.tidy,"Tidy up","Clear finished items"],["#help",IC.help,"Help","Quick answers"]];
+  var h='<div class="tiles">'+tiles.map(function(t){return t[0].charAt(0)==="#"?'<a class="tile" href="'+t[0]+'"><span class="ti">'+t[1]+'</span><b>'+t[2]+'</b><span>'+t[3]+'</span></a>':'<button class="tile" data-'+t[0]+'="1"><span class="ti">'+t[1]+'</span><b>'+esc(t[2])+'</b><span>'+t[3]+'</span></button>'}).join("")+'</div>';
+  h+='<a class="etsy" href="'+ETSY+'" target="_blank" rel="noopener" style="margin-top:16px">'+'<b>More from BrightBlueprintCo →</b><br>Planners and helpers for real life, including the Personal Shopper &amp; Gift Planner.</a>';
+  $("#moreBox").innerHTML=h}
+function renderApp(){$("#appBox").innerHTML='<div class="card hrow"><div class="appic"><img src="icon-180.png" alt=""></div><div><b style="font:600 19px Fraunces,Georgia,serif">Opens full screen, like a real app</b><p class="meta" style="margin-top:4px">No App Store, no sign-up. Your parcels come with you.</p></div></div>'+
+  '<div class="card"><p class="lab" style="margin:0 0 10px">On iPhone (Safari)</p><ol class="how"><li>Tap <b>Get my app ready</b> below.</li><li>Tap the <b>Share</b> button at the bottom of Safari.</li><li>Scroll down, tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><button class="btn wide" style="margin-top:8px" data-appready="1">Get my app ready</button></div>'+
+  '<div class="card"><p class="lab" style="margin:0 0 10px">On Android (Chrome)</p><ol class="how"><li>Tap <b>Get my app ready</b> above.</li><li>Tap the <b>⋮</b> menu, top right.</li><li>Tap <b>Add to Home screen</b> or <b>Install app</b>.</li></ol></div>'+
+  '<p class="meta" style="font-size:13px">Why the button? Phones keep home-screen apps separate from your browser. The button packs your parcels into the link so they move across with you.</p>'}
+function renderHelp(){var Q=[["Is my information uploaded anywhere?","No. Everything stays on your phone. Screenshots are read on your phone and never uploaded."],["The screenshot reader got something wrong","Just fix it before you tap Add. It works best on a clear screenshot of the delivery email or text, cropped to the important bit."],["How are return deadlines worked out?","When a parcel arrives we start a "+S.win+"-day return window, the usual minimum for online orders. Lots of shops give longer, especially at Christmas, so check their policy and tap Edit to change the date."],["When should a refund arrive?","For online orders in the UK, shops normally have to refund within 14 days of getting your return back, or of you showing proof you sent it. If yours goes past that, we’ll flag it so you can chase."],["I’ve got a new phone","Go to More → Back up / move phones, send yourself the link, and open it on the new phone."],["The app on my home screen is empty","Phones keep home-screen apps separate from the browser. Open the tracker in your browser, go to Make it an app, tap Get my app ready, and add it to your home screen again."]];
+  $("#helpBox").innerHTML='<div class="card faq">'+Q.map(function(q){return '<b>'+esc(q[0])+'</b><p>'+esc(q[1])+'</p>'}).join("")+'</div><p class="meta" style="text-align:center">Made with care by BrightBlueprintCo.</p>'}
+
+/* ---------- routing ---------- */
+var TABS=["home","deliv","returns","more","app","help"];
+function renderAll(){renderHome();renderDeliv();renderRet();renderMore();renderApp();renderHelp();badge()}
+function badge(){var c=counts(),n=c.dueWeek.length+c.post.filter(function(o){return sinceDays(o.postedOn)>14}).length,a=document.querySelector('[data-tab="returns"]');var i=a.querySelector("i");if(n){if(!i){i=document.createElement("i");a.appendChild(i)}i.textContent=n}else if(i)i.remove()}
+function show(){var k=(location.hash||"#home").slice(1);if(TABS.indexOf(k)<0)k="home";TABS.forEach(function(t){document.getElementById(t).classList.toggle("on",t===k)});
+  document.querySelectorAll("[data-tab]").forEach(function(a){a.classList.toggle("on",a.dataset.tab===k||(k==="app"||k==="help")&&a.dataset.tab==="more")});window.scrollTo(0,0)}
+window.addEventListener("hashchange",show);
+function refresh(){save();renderAll()}
+
+/* ---------- sheets ---------- */
+function openSheet(html){closeSheet();var d=document.createElement("div");d.className="shade";d.id="shade";d.innerHTML='<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><button class="sx" data-close="1" aria-label="Close">×</button>'+html+'</div>';document.body.appendChild(d);document.body.style.overflow="hidden";wireDates(d)}
+function closeSheet(){var d=$("#shade");if(d)d.remove();document.body.style.overflow=""}
+function dateField(id,label,val){return '<div class="f"><label for="'+id+'">'+label+'</label><div class="dwrap"><input type="date" id="'+id+'" value="'+esc(val||"")+'"><button class="dclr" data-dclr="'+id+'" aria-label="Clear date">×</button></div></div>'}
+function wireDates(root){}
+var F=null;
+function formSheet(o,mode){F={id:o.id||null,to:o.to||"Home",car:o.carrier||"",mode:mode};
+  var title=mode==="edit"?"Edit":mode==="found"?"Here’s what we found":mode==="ret"?"Add a return":"Add a delivery";
+  var h='<h2>'+title+'</h2>'+(mode==="found"?'<p class="found">Check it over, fix anything that’s off, then add it.</p>':'')+
+   '<div class="f"><label for="fItem">Item</label><input type="text" id="fItem" value="'+esc(o.item||"")+'" placeholder="What is it?"></div>'+
+   '<div class="row2"><div class="f"><label for="fFrom">From</label><input type="text" id="fFrom" value="'+esc(o.from||"")+'" placeholder="Shop"></div><div class="f"><label for="fPrice">Price</label><input type="text" inputmode="decimal" id="fPrice" value="'+esc(o.price||"")+'" placeholder="'+S.cur+'0.00"></div></div>';
+  if(mode!=="ret")h+=dateField("fDue","Due",o.due)+'<div class="f"><label for="fTrack">Tracking number</label><input type="text" id="fTrack" autocapitalize="characters" value="'+esc(o.track||"")+'" placeholder="Paste it here"></div>'+
+   (o.carrier?'<p class="meta" style="margin:-4px 0 10px">Carrier spotted: <b>'+esc(o.carrier)+'</b></p>':'')+
+   '<div class="f"><label>Delivering to</label><div class="chips">'+["Home","Work","Someone else","Locker / pickup"].map(function(x){return '<button class="pa'+(F.to===x?" on":"")+'" data-fto="'+x+'">'+x+'</button>'}).join("")+'</div></div>';
+  h+='<div class="more">'+dateField("fRet",mode==="ret"?"Return by":"Return by (optional)",o.retBy)+
+   '<div class="chips" style="margin:-4px 0 12px">'+[14,28,30,60].map(function(n){return '<button class="pa" data-fwin="'+n+'">'+n+' days</button>'}).join("")+'</div>'+
+   (mode!=="ret"?'<div class="f"><label>Carrier</label><div class="chips">'+Object.keys(CR).map(function(x){return '<button class="pa'+(F.car===x?" on":"")+'" data-fcar="'+x+'">'+x+'</button>'}).join("")+'</div></div>':'')+'</div>';
+  h+='<div class="pact" style="margin-top:6px">'+(mode==="edit"?'<button class="btn wide" data-fsave="1">Save</button>':mode==="ret"?'<button class="btn wide" data-fsave="1">Add this return</button>':'<button class="btn" style="flex:1" data-fsave="1">Add it</button><button class="btn alt" style="flex:1" data-fsave="2">Add + alert me</button>')+'</div>'+
+   (mode==="edit"?'<div style="text-align:center;margin-top:8px"><button class="lnk" style="color:var(--bad)" data-remove="'+o.id+'">Remove this</button></div>':'');
+  openSheet(h)}
+function val(id){var e=document.getElementById(id);return e?e.value.trim():""}
+function saveForm(alertToo){var o=F.id?byId(F.id):null,isNew=!o;if(isNew){o={id:uid(),added:today()};S.orders.push(o)}
+  o.item=val("fItem");o.from=val("fFrom");var p=val("fPrice").replace(/[^\d.,]/g,"").replace(",",".");o.price=p?(+p||""):"";o.retBy=val("fRet");
+  if(F.mode==="ret"){o.arrived=true;o.arrOn=o.arrOn||today();o.rs="return"}
+  else{o.due=val("fDue");o.track=val("fTrack").toUpperCase();o.to=F.to;o.carrier=F.car}
+  refresh();closeSheet();
+  if(alertToo&&o.due)alertFor(o);
+  toast(isNew?(F.mode==="ret"?"Return added. We’ll count down the days":"Added. We’ll keep an eye on it"):"Saved");F=null}
+function postedSheet(o){F={id:o.id,car:o.rcar||""};openSheet('<h2>Posted it back</h2><p class="sub">'+esc(o.item||"This one")+'</p>'+dateField("pOn","Date posted",o.postedOn||today())+
+  '<div class="f"><label for="pAmt">Refund you’re expecting</label><input type="text" inputmode="decimal" id="pAmt" value="'+esc(o.refAmt||o.price||"")+'" placeholder="'+S.cur+'0.00"></div>'+
+  '<div class="f"><label for="pTrack">Return tracking (optional)</label><input type="text" id="pTrack" autocapitalize="characters" value="'+esc(o.rtrack||"")+'"></div>'+
+  '<div class="f"><label>Sent with</label><div class="chips">'+Object.keys(CR).map(function(x){return '<button class="pa'+(F.car===x?" on":"")+'" data-fcar="'+x+'">'+x+'</button>'}).join("")+'</div></div>'+
+  '<div class="tip" style="margin-bottom:12px">Keep your proof of postage until the money lands. It’s your evidence if you need to chase.</div><button class="btn wide" data-psave="1">Save</button>')}
+function refundSheet(o){F={id:o.id};openSheet('<h2>Refund landed</h2><p class="sub">'+esc(o.item||"This one")+'</p><div class="f"><label for="rAmt">Amount refunded</label><input type="text" inputmode="decimal" id="rAmt" value="'+esc(o.refAmt||o.price||"")+'" placeholder="'+S.cur+'0.00"></div><button class="btn wide" data-rsave="1">Done</button>')}
+
+/* ---------- calendar export ---------- */
+function icsT(d){function p(n){return String(n).padStart(2,"0")}return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"T"+p(d.getHours())+p(d.getMinutes())+"00"}
+function ics(events,name){var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//BrightBlueprintCo//Parcels//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH"],x=function(s){return String(s||"").replace(/[,;\\]/g,"\\$&").replace(/\n/g,"\\n")};
+  events.forEach(function(e,i){L.push("BEGIN:VEVENT","UID:bbpr-"+Date.now()+"-"+i+"@brightblueprintco","DTSTAMP:"+icsT(new Date()),"DTSTART:"+icsT(e.at),"DTEND:"+icsT(new Date(e.at.getTime()+15*60000)),"SUMMARY:"+x(e.t),"DESCRIPTION:"+x(e.d),"BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+x(e.t),"TRIGGER:-PT0M","END:VALARM","END:VEVENT")});
+  L.push("END:VCALENDAR");var blob=new Blob([L.join("\r\n")],{type:"text/calendar"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name+".ics";document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},500);window.LAST_ICS=L.join("\n")}
+function devent(o){return {at:new Date(o.due+"T08:00:00"),t:"Delivery due: "+(o.item||"your order"),d:[o.from?"From "+o.from:"",o.to?"Going to: "+o.to:"",o.track?"Tracking: "+o.track:""].filter(Boolean).join("\n")}}
+function revents(o){var E=[],a=new Date(o.retBy+"T09:00:00");a.setDate(a.getDate()-2);if(a>new Date())E.push({at:a,t:"Return in 2 days: "+(o.item||"an order"),d:"Last day to return is "+fd(o.retBy)+(o.from?". From "+o.from:"")});
+  var b=new Date(o.retBy+"T09:00:00");if(b>new Date())E.push({at:b,t:"Last day to return: "+(o.item||"an order"),d:o.from?"From "+o.from:""});return E}
+function alertFor(o){ics([devent(o)],"delivery-alert");toast("Delivery alert ready to add")}
+
+/* ---------- backup & app link ---------- */
+function pack(){try{return btoa(unescape(encodeURIComponent(JSON.stringify({o:S.orders,c:S.cur,w:S.win}))))}catch(e){return ""}}
+function carryLink(){return location.origin+location.pathname+"#i="+pack()}
+function importFrom(hash){try{var d=JSON.parse(decodeURIComponent(escape(atob(hash))));var n=0;(d.o||[]).forEach(function(o){if(!byId(o.id)){S.orders.push(o);n++}});if(d.c)S.cur=d.c;if(d.w)S.win=d.w;save();return n}catch(e){return -1}}
+function copyText(t,msg){function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}a.remove();toast(msg)}
+  try{navigator.clipboard.writeText(t).then(function(){toast(msg)},fb)}catch(e){fb()}}
+
+/* ---------- screenshot reader ---------- */
+var TESS=null;function loadTess(cb,fail){if(window.Tesseract)return cb();if(TESS){TESS.push(cb);return}TESS=[cb];var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";s.onload=function(){TESS.forEach(function(f){f()})};s.onerror=function(){TESS=null;fail()};document.head.appendChild(s)}
+function parsePrice(t){var lines=t.split(/\n/),best="";var re=/(?:£|\$|€)\s?(\d{1,5}(?:[.,]\d{2})?)/;
+  lines.forEach(function(l){var m=l.match(re);if(m&&/total|paid|amount|refund/i.test(l))best=m[1]});if(!best){var m=t.match(re);if(m)best=m[1]}return best?best.replace(",","."):""}
+function parseRet(t,due){var w=t.match(/return[^\n]{0,40}?within\s+(\d{1,3})\s+days/i);if(w)return addDays(due||today(),+w[1]);var m=t.match(/return[s]?\s*(?:by|before|until|window\s*(?:closes|ends)|deadline)[^\n]{0,40}/i);return m?parseDate(m[0]):""}
+function readShot(file){var url=URL.createObjectURL(file);
+  openSheet('<h2>Reading your screenshot</h2><div class="scan"><img src="'+url+'" alt=""><i></i></div><p class="meta" id="shotProg" style="text-align:center">Reading… (the first time takes a few seconds)</p>');
+  function prep(cb){var img=new Image();img.onload=function(){var sc=Math.min(1,2000/Math.max(img.width,img.height)),w=Math.round(img.width*sc),h=Math.round(img.height*sc);
+      var a=document.createElement("canvas"),b=document.createElement("canvas");a.width=b.width=w;a.height=b.height=h;var ca=a.getContext("2d"),cb2=b.getContext("2d");ca.drawImage(img,0,0,w,h);
+      var d=ca.getImageData(0,0,w,h),e=cb2.createImageData(w,h);for(var i=0;i<d.data.length;i+=4){var l=Math.round(.299*d.data[i]+.587*d.data[i+1]+.114*d.data[i+2]);d.data[i]=d.data[i+1]=d.data[i+2]=l;e.data[i]=e.data[i+1]=e.data[i+2]=255-l;e.data[i+3]=255}
+      ca.putImageData(d,0,0);cb2.putImageData(e,0,0);cb([a,b])};img.onerror=function(){cb([file])};img.src=url}
+  var prog=function(base){return {logger:function(m){var p=document.getElementById("shotProg");if(p&&m.status&&m.progress!=null)p.textContent="Reading… "+Math.round(base+m.progress*50)+"%"}}};
+  loadTess(function(){prep(function(srcs){var texts=[];var run=function(i){if(i>=srcs.length){done(texts.join("\n"));return}Tesseract.recognize(srcs[i],"eng",prog(i*50)).then(function(r){texts.push(r.data.text||"");run(i+1)}).catch(function(){run(i+1)})};run(0)})},
+    function(){var p=document.getElementById("shotProg");if(p)p.innerHTML='Couldn’t load the reader. Check your connection, or <button class="lnk" data-new="1">type it in instead</button>.'});
+  function done(txt){var o=parseShot(txt);o.price=parsePrice(txt);o.retBy=parseRet(txt,o.due);window.PR_LAST=o;formSheet(o,"found")}}
+
+/* ---------- events ---------- */
+document.addEventListener("click",function(e){var t=e.target.closest("[data-shot],[data-new],[data-newret],[data-close],[data-fsave],[data-fto],[data-fcar],[data-fwin],[data-dclr],[data-edit],[data-remove],[data-arr],[data-alert],[data-sendback],[data-keep],[data-posted],[data-psave],[data-refund],[data-rsave],[data-undo],[data-retalert],[data-dv],[data-rv],[data-mon],[data-day],[data-allcal],[data-goto],[data-backup],[data-cur],[data-tidy],[data-appready],[data-apphide],[data-gate]");
+  if(!t){if(e.target.id==="shade")closeSheet();return}var d=t.dataset;
+  if(d.shot){$("#shotFile").value="";$("#shotFile").click();return}
+  if(d.new){formSheet({},"new");return}
+  if(d.newret){formSheet({},"ret");return}
+  if(d.close){closeSheet();return}
+  if(d.fsave){if(!val("fItem")&&!val("fFrom")){var fi=$("#fItem");fi.placeholder="Pop in what it is";fi.focus();return}saveForm(d.fsave==="2");return}
+  if(d.fto){F.to=d.fto;t.parentNode.querySelectorAll("[data-fto]").forEach(function(x){x.classList.toggle("on",x===t)});return}
+  if(d.fcar){F.car=F.car===d.fcar?"":d.fcar;t.parentNode.querySelectorAll("[data-fcar]").forEach(function(x){x.classList.toggle("on",x.dataset.fcar===F.car)});return}
+  if(d.fwin){var base=val("fDue")||today();if(F&&F.id){var oo=byId(F.id);if(oo&&oo.arrOn)base=oo.arrOn}$("#fRet").value=addDays(base,+d.fwin);return}
+  if(d.dclr){var inp=document.getElementById(d.dclr);if(inp)inp.value="";return}
+  if(d.edit){formSheet(byId(d.edit),"edit");return}
+  if(d.remove){S.orders=S.orders.filter(function(o){return o.id!==d.remove});refresh();closeSheet();toast("Removed");return}
+  if(d.arr){var o=byId(d.arr);o.arrived=!o.arrived;if(o.arrived){o.arrOn=today();if(!o.retBy)o.retBy=addDays(o.arrOn,S.win);toast((o.item||"That one")+" has landed. Return window: "+plural(S.win,"day"))}else{o.arrOn="";if(!o.rs)o.retBy=""}refresh();return}
+  if(d.alert){alertFor(byId(d.alert));return}
+  if(d.sendback){var o2=byId(d.sendback);o2.rs="return";if(!o2.arrived){o2.arrived=true;o2.arrOn=today()}if(!o2.retBy)o2.retBy=addDays(o2.arrOn||today(),S.win);refresh();toast("On the send-back list");return}
+  if(d.keep){var o3=byId(d.keep);o3.rs="keep";refresh();toast("Keeper. Nice");return}
+  if(d.posted){postedSheet(byId(d.posted));return}
+  if(d.psave){var o4=byId(F.id);o4.rs="posted";o4.postedOn=val("pOn")||today();var a=val("pAmt").replace(/[^\d.,]/g,"").replace(",",".");o4.refAmt=a?+a:"";o4.rtrack=val("pTrack").toUpperCase();o4.rcar=F.car;refresh();closeSheet();V.rv="wait";renderRet();toast("Posted. We’ll watch for your refund");return}
+  if(d.refund){refundSheet(byId(d.refund));return}
+  if(d.rsave){var o5=byId(F.id);var a2=val("rAmt").replace(/[^\d.,]/g,"").replace(",",".");o5.refAmt=a2?+a2:o5.refAmt;o5.rs="refunded";o5.refOn=today();refresh();closeSheet();toast("Money back. Lovely");return}
+  if(d.undo){var o6=byId(d.undo);o6.rs="posted";o6.refOn="";refresh();return}
+  if(d.retalert){var o7=byId(d.retalert),E=revents(o7);if(E.length){ics(E,"return-reminder");toast("Return reminder ready to add")}else toast("That deadline’s today, no time to remind!");return}
+  if(d.dv){V.dv=d.dv;renderDeliv();return}
+  if(d.rv){V.rv=d.rv;renderRet();return}
+  if(d.mon){V.m=new Date(V.m.getFullYear(),V.m.getMonth()+(+d.mon),1);renderDeliv();return}
+  if(d.day){V.sel=V.sel===d.day?null:d.day;renderDeliv();return}
+  if(d.allcal){var ev=[];S.orders.forEach(function(o){if(o.due&&!o.arrived&&daysTo(o.due)>=0)ev.push(devent(o));if(o.retBy&&(o.rs==="return"||deciding(o)))ev=ev.concat(revents(o))});
+    if(!ev.length){toast("Nothing coming up to add yet");return}ics(ev,"parcels-and-returns");toast(plural(ev.length,"reminder")+" ready to add");return}
+  if(d.goto){var p=d.goto.split("|");if(p[0]==="returns"){var oo2=byId(p[1].slice(2));V.rv=oo2&&oo2.rs==="posted"?"wait":"send";renderRet()}else{V.dv="up";renderDeliv()}location.hash=p[0];setTimeout(function(){var el=document.getElementById(p[1]);if(el){el.scrollIntoView({block:"center"});el.style.outline="2px solid var(--gold)";setTimeout(function(){el.style.outline=""},1600)}},60);return}
+  if(d.backup){if(!S.orders.length){toast("Add a parcel first");return}var link=carryLink();if(navigator.share){navigator.share({title:"My parcels",text:"My Parcel & Returns Tracker backup. Open this link on any phone to restore it.",url:link}).catch(function(){})}else copyText(link,"Backup link copied. Send it to yourself");return}
+  if(d.cur){var C=["£","$","€"];S.cur=C[(C.indexOf(S.cur)+1)%3];refresh();toast("Currency: "+S.cur);return}
+  if(d.tidy){var n=S.orders.length;S.orders=S.orders.filter(function(o){return !((o.rs==="refunded"||o.rs==="keep"||(o.arrived&&!o.rs&&(!o.retBy||daysTo(o.retBy)<0)))&&daysTo(o.refOn||o.arrOn||o.due||today())<-7)});refresh();toast(n-S.orders.length?plural(n-S.orders.length,"finished item")+" cleared":"Nothing to tidy yet");return}
+  if(d.appready){try{history.replaceState(null,"","#i="+pack())}catch(e){}toast("Ready. Now tap Share → Add to Home Screen");return}
+  if(d.apphide){S.appHide=1;refresh();return}
+});
+document.getElementById("shotFile").addEventListener("change",function(e){var f=e.target.files&&e.target.files[0];if(f)readShot(f)});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSheet()});
+var btt=$("#btt");window.addEventListener("scroll",function(){btt.classList.toggle("on",window.scrollY>700)},{passive:true});btt.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"})});
+
+/* ---------- boot ---------- */
+(function(){var m=location.hash.match(/^#i=(.+)$/);if(m){var n=importFrom(m[1]);try{history.replaceState(null,"",location.pathname+location.search+"#home")}catch(e){}if(n>0)setTimeout(function(){toast(plural(n,"parcel")+" brought across")},300)}})();
+renderAll();show();
+
+/* ---------- buyers-only gate ---------- */
+(function(){function hh(x){x=String(x||"").trim().toUpperCase();var h=5381;for(var i=0;i<x.length;i++)h=((h<<5)+h+x.charCodeAt(i))>>>0;return h}
+  var OK=[2683947716],LK="bbpr-k";
+  function ok(){try{localStorage.setItem(LK,"1")}catch(e){}S.unlocked=1;save()}
+  var m=(location.search+"&"+location.hash).match(/[?&#]k=([A-Za-z0-9]+)/);
+  if(m&&OK.indexOf(hh(m[1]))>=0){ok();try{history.replaceState(null,"",location.pathname+"#home")}catch(e){}}
+  var has=false;try{has=localStorage.getItem(LK)==="1"}catch(e){}
+  if(has||S.unlocked)return;
+  document.body.classList.add("gated");var el=document.createElement("div");el.id="gate";
+  el.innerHTML='<div class="kick">BrightBlueprintCo</div><div class="brand" style="margin-bottom:6px">Parcels <em>&amp; Returns</em></div><p class="meta" style="margin:0 0 20px">Every delivery tracked, every return deadline counted down, every refund you’re owed added up.</p>'+
+   '<div class="card"><b style="font:600 18px Fraunces,Georgia,serif">Already bought it?</b><p class="meta" style="margin:4px 0 10px">Open the link in your START HERE file, or type the code from it here.</p><div class="qadd"><input type="text" id="gateIn" placeholder="Your access code" autocomplete="off"><button class="btn" data-gate="1">Unlock</button></div><p class="meta" id="gateMsg" style="font-size:12.5px;margin-top:6px"></p></div>'+
+   '<a class="etsy" href="'+ETSY+'" target="_blank" rel="noopener"><b>Get yours on Etsy →</b><br>Instant download. Works on any phone.</a>';
+  document.body.appendChild(el);
+  function tryCode(){if(OK.indexOf(hh($("#gateIn").value))>=0){ok();document.body.classList.remove("gated");el.remove();try{history.replaceState(null,"",location.pathname+"#home")}catch(e){}renderAll();show();toast("Unlocked. Welcome in")}else $("#gateMsg").textContent="That code doesn’t look right. Check your START HERE file."}
+  el.addEventListener("click",function(e){if(e.target.closest("[data-gate]")){e.stopPropagation();tryCode()}});
+  el.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="gateIn"){e.preventDefault();tryCode()}});
+})();
+
+</script>
+</body>
+</html>

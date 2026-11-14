@@ -6,10 +6,10 @@
 <meta name="robots" content="noindex">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Parcels">
+<meta name="apple-mobile-web-app-title" content="Package Pal">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F6F1E7">
-<title>Parcel &amp; Returns Tracker</title>
+<title>Package Pal</title>
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <style>
@@ -150,7 +150,7 @@ ol.how{padding-left:20px;margin:8px 0 0}ol.how li{margin-bottom:8px}
 </head>
 <body>
 <div class="wrap">
-<header class="top"><div class="kick">BrightBlueprintCo</div><div class="brand">Parcels <em>&amp; Returns</em></div><div class="hand">every parcel, every refund</div></header>
+<header class="top"><div class="kick">BrightBlueprintCo</div><div class="brand">Package <em>Pal</em></div><div class="hand">every parcel, return &amp; refund</div></header>
 
 <section id="home"><div id="homeBox"></div></section>
 
@@ -230,7 +230,7 @@ function parseShot(t){var o={item:"",from:"",due:"",track:"",order:""};
     if(SHOPS.some(function(sh){return l.toLowerCase().replace(/[^a-z& ]/g,"").trim()===sh.toLowerCase()}))return false;
     return true});
   o.item=il||(o.order?"Order "+o.order:"");if(/^(order|parcel|package|shipment)\b/i.test(o.item))o.item="";return o}
-/* ===== Parcel & Returns Tracker (BrightBlueprintCo) ===== */
+/* ===== Package Pal: parcels, returns & refunds (BrightBlueprintCo) ===== */
 var ETSY="https://www.etsy.com/shop/BrightBlueprintCo";
 var DEMO=(function(){var q=location.search;try{if(/[?&]demo=1/.test(q))localStorage.setItem("bbpr-demo","1");if(/[?&]demo=0/.test(q))localStorage.removeItem("bbpr-demo");return localStorage.getItem("bbpr-demo")==="1"}catch(e){return /[?&]demo=1/.test(q)}})();
 var KEY=DEMO?"bb-parcels-demo":"bb-parcels-v1";
@@ -474,7 +474,7 @@ function refundSheet(o){F={id:o.id};openSheet('<h2>Refund landed</h2><p class="s
 
 /* ---------- calendar export ---------- */
 function icsT(d){function p(n){return String(n).padStart(2,"0")}return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"T"+p(d.getHours())+p(d.getMinutes())+"00"}
-function ics(events,name){var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//BrightBlueprintCo//Parcels//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH"],x=function(s){return String(s||"").replace(/[,;\\]/g,"\\$&").replace(/\n/g,"\\n")};
+function ics(events,name){var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//BrightBlueprintCo//PackagePal//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH"],x=function(s){return String(s||"").replace(/[,;\\]/g,"\\$&").replace(/\n/g,"\\n")};
   events.forEach(function(e,i){L.push("BEGIN:VEVENT","UID:bbpr-"+Date.now()+"-"+i+"@brightblueprintco","DTSTAMP:"+icsT(new Date()),"DTSTART:"+icsT(e.at),"DTEND:"+icsT(new Date(e.at.getTime()+15*60000)),"SUMMARY:"+x(e.t),"DESCRIPTION:"+x(e.d),"BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+x(e.t),"TRIGGER:-PT0M","END:VALARM","END:VEVENT")});
   L.push("END:VCALENDAR");var blob=new Blob([L.join("\r\n")],{type:"text/calendar"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name+".ics";document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},500);window.LAST_ICS=L.join("\n")}
 function devent(o){return {at:new Date(o.due+"T08:00:00"),t:"Delivery due: "+(o.item||"your order"),d:[o.from?"From "+o.from:"",o.to?"Going to: "+o.to:"",o.track?"Tracking: "+o.track:""].filter(Boolean).join("\n")}}
@@ -536,7 +536,7 @@ document.addEventListener("click",function(e){var t=e.target.closest("[data-shot
   if(d.allcal){var ev=[];S.orders.forEach(function(o){if(o.due&&!o.arrived&&daysTo(o.due)>=0)ev.push(devent(o));if(o.retBy&&(o.rs==="return"||deciding(o)))ev=ev.concat(revents(o))});
     if(!ev.length){toast("Nothing coming up to add yet");return}ics(ev,"parcels-and-returns");toast(plural(ev.length,"reminder")+" ready to add");return}
   if(d.goto){var p=d.goto.split("|");if(p[0]==="returns"){var oo2=byId(p[1].slice(2));V.rv=oo2&&oo2.rs==="posted"?"wait":"send";renderRet()}else{V.dv="up";renderDeliv()}location.hash=p[0];setTimeout(function(){var el=document.getElementById(p[1]);if(el){el.scrollIntoView({block:"center"});el.style.outline="2px solid var(--gold)";setTimeout(function(){el.style.outline=""},1600)}},60);return}
-  if(d.backup){if(!S.orders.length){toast("Add a parcel first");return}var link=carryLink();if(navigator.share){navigator.share({title:"My parcels",text:"My Parcel & Returns Tracker backup. Open this link on any phone to restore it.",url:link}).catch(function(){})}else copyText(link,"Backup link copied. Send it to yourself");return}
+  if(d.backup){if(!S.orders.length){toast("Add a parcel first");return}var link=carryLink();if(navigator.share){navigator.share({title:"My Package Pal",text:"My Package Pal backup. Open this link on any phone to restore it.",url:link}).catch(function(){})}else copyText(link,"Backup link copied. Send it to yourself");return}
   if(d.cur){var C=["£","$","€"];S.cur=C[(C.indexOf(S.cur)+1)%3];refresh();toast("Currency: "+S.cur);return}
   if(d.tidy){var n=S.orders.length;S.orders=S.orders.filter(function(o){return !((o.rs==="refunded"||o.rs==="keep"||(o.arrived&&!o.rs&&(!o.retBy||daysTo(o.retBy)<0)))&&daysTo(o.refOn||o.arrOn||o.due||today())<-7)});refresh();toast(n-S.orders.length?plural(n-S.orders.length,"finished item")+" cleared":"Nothing to tidy yet");return}
   if(d.appready){try{history.replaceState(null,"","#i="+pack())}catch(e){}toast("Ready. Now tap Share → Add to Home Screen");return}
@@ -566,7 +566,7 @@ renderAll();show();
   var has=false;try{has=localStorage.getItem(LK)==="1"}catch(e){}
   if(has||S.unlocked||DEMO)return;
   document.body.classList.add("gated");var el=document.createElement("div");el.id="gate";
-  el.innerHTML='<div class="kick">BrightBlueprintCo</div><div class="brand" style="margin-bottom:6px">Parcels <em>&amp; Returns</em></div><p class="meta" style="margin:0 0 20px">Every delivery tracked, every return deadline counted down, every refund you’re owed added up.</p>'+
+  el.innerHTML='<div class="kick">BrightBlueprintCo</div><div class="brand" style="margin-bottom:6px">Package <em>Pal</em></div><p class="meta" style="margin:0 0 20px">Every delivery tracked, every return deadline counted down, every refund you’re owed added up.</p>'+
    '<div class="card"><b style="font:600 18px Fraunces,Georgia,serif">Already bought it?</b><p class="meta" style="margin:4px 0 10px">Open the link in your START HERE file, or type the code from it here.</p><div class="qadd"><input type="text" id="gateIn" placeholder="Your access code" autocomplete="off"><button class="btn" data-gate="1">Unlock</button></div><p class="meta" id="gateMsg" style="font-size:12.5px;margin-top:6px"></p></div>'+
    '<a class="etsy" href="'+ETSY+'" target="_blank" rel="noopener"><b>Get yours on Etsy →</b><br>Instant download. Works on any phone.</a>';
   document.body.appendChild(el);

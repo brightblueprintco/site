@@ -59,8 +59,8 @@ section{display:none}section.on{display:block;animation:fi .25s ease}
 .dclr{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:var(--line);color:var(--ink);font-size:16px;line-height:1;cursor:pointer}
 /* stats */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 4px;margin-bottom:12px}
-.stats div{text-align:center;border-left:1px dashed var(--line);padding:2px 4px}.stats div:first-child{border-left:0}
-.stats b{display:block;font:600 26px/1.1 "Fraunces",Georgia,serif}
+.stats div,.stats button{text-align:center;border:0;border-left:1px dashed var(--line);padding:2px 4px;background:none;font:inherit;color:inherit;cursor:pointer;border-radius:0}.stats>:first-child{border-left:0}.stats button:active{background:#F1EADB}
+.stats b{display:block;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:5px;text-decoration-thickness:2px;font:600 26px/1.1 "Fraunces",Georgia,serif}
 .stats span{font:700 9.5px/1.2 "Courier Prime",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
 .stats .bad b{color:var(--bad)}.stats .gold b{color:var(--gold)}
 /* add card */
@@ -371,7 +371,7 @@ function renderHome(){var c=counts(),h="";
     '<div class="step"><i>1</i><div><b>Screenshot any delivery or order email</b><p class="meta">It reads the shop, the date and the tracking number for you.</p></div></div>'+
     '<div class="step"><i>2</i><div><b>Track it in one tap</b><p class="meta">Straight to the right carrier’s tracking page, with an alert on the day.</p></div></div>'+
     '<div class="step"><i>3</i><div><b>Never miss a return or a refund</b><p class="meta">Return deadlines counted down, refunds you’re owed added up, and a nudge when it’s time to chase.</p></div></div></div></div>';}
-  else h+='<div class="stats"><div><b>'+c.up.length+'</b><span>On the way</span></div><div><b>'+c.today.length+'</b><span>Today</span></div><div class="'+(c.dueWeek.length?"bad":"")+'"><b>'+c.dueWeek.length+'</b><span>Returns due</span></div><div class="gold"><b>'+(c.waiting?S.cur+Math.round(c.waiting):"0")+'</b><span>Owed back</span></div></div>';
+  else h+='<div class="stats"><button data-stat="deliv|up|up"><b>'+c.up.length+'</b><span>On the way</span></button><button data-stat="deliv|up|today"><b>'+c.today.length+'</b><span>Today</span></button><button class="'+(c.dueWeek.length?"bad":"")+'" data-stat="returns|send|due"><b>'+c.dueWeek.length+'</b><span>Returns due</span></button><button class="gold" data-stat="returns|wait|wait"><b>'+(c.waiting?S.cur+Math.round(c.waiting):"0")+'</b><span>Owed back</span></button></div>';
   h+=addCard();
   if(c.post.length)h+='<a class="money" href="#returns" style="text-decoration:none"><div style="flex:1"><b>'+money(c.waiting)+'</b><p>owed back to you across '+plural(c.post.length,"return")+'</p></div><span style="font-size:22px;color:var(--gold2)">›</span></a>';
   var up=upcoming();if(S.orders.length){h+='<h3>Coming up</h3>'+(up.length?up.map(upRow).join(""):'<div class="empty">Nothing due in the next 7 days. Lovely.</div>')}
@@ -392,7 +392,7 @@ function cal(){var now=new Date();if(!V.m)V.m=new Date(now.getFullYear(),now.get
   if(V.sel){var ev2=by[V.sel]||[];h+='<p class="lab" style="margin:16px 0 10px">'+esc(fd(V.sel,1))+'</p>'+(ev2.length?ev2.map(function(e){return e[0]==="r"?retCard(e[1]):delivCard(e[1])}).join(""):'<p class="meta">Nothing on this day.</p>')}
   else h+='<p class="meta" style="margin-top:10px;text-align:center">Tap a day to see what’s due.</p>';return h}
 function renderDeliv(){var c=counts(),h=addCard();
-  h+='<div class="stats"><div><b>'+c.up.length+'</b><span>On the way</span></div><div><b>'+c.today.length+'</b><span>Today</span></div><div class="'+(c.late.length?"bad":"")+'"><b>'+c.late.length+'</b><span>Late</span></div><div><b>'+c.arr.length+'</b><span>Arrived</span></div></div>';
+  h+='<div class="stats"><button data-stat="deliv|up|up"><b>'+c.up.length+'</b><span>On the way</span></button><button data-stat="deliv|up|today"><b>'+c.today.length+'</b><span>Today</span></button><button class="'+(c.late.length?"bad":"")+'" data-stat="deliv|up|late"><b>'+c.late.length+'</b><span>Late</span></button><button data-stat="deliv|arr|arr"><b>'+c.arr.length+'</b><span>Arrived</span></button></div>';
   h+='<div class="seg">'+[["up","On the way"],["cal","Calendar"],["arr","Arrived"]].map(function(x){return '<button class="'+(V.dv===x[0]?"on":"")+'" data-dv="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
   var up=c.up.slice().sort(function(a,b){return String(a.due||"9").localeCompare(String(b.due||"9"))}),ar=c.arr.slice().sort(function(a,b){return String(b.arrOn||b.due||"").localeCompare(String(a.arrOn||a.due||""))});
   if(V.dv==="up")h+=up.length?up.map(delivCard).join(""):'<div class="empty">Nothing on the way. Screenshot your next delivery email to add it.</div>';
@@ -506,7 +506,7 @@ function readShot(file){var url=URL.createObjectURL(file);
   function done(txt){var o=parseShot(txt);o.price=parsePrice(txt);o.retBy=parseRet(txt,o.due);window.PR_LAST=o;formSheet(o,"found")}}
 
 /* ---------- events ---------- */
-document.addEventListener("click",function(e){var t=e.target.closest("[data-shot],[data-new],[data-newret],[data-close],[data-fsave],[data-fto],[data-fcar],[data-fwin],[data-dclr],[data-edit],[data-remove],[data-arr],[data-alert],[data-sendback],[data-keep],[data-posted],[data-psave],[data-refund],[data-rsave],[data-undo],[data-retalert],[data-dv],[data-rv],[data-mon],[data-day],[data-allcal],[data-goto],[data-backup],[data-cur],[data-tidy],[data-appready],[data-apphide],[data-gate],[data-demoreset]");
+document.addEventListener("click",function(e){var t=e.target.closest("[data-shot],[data-new],[data-newret],[data-close],[data-fsave],[data-fto],[data-fcar],[data-fwin],[data-dclr],[data-edit],[data-remove],[data-arr],[data-alert],[data-sendback],[data-keep],[data-posted],[data-psave],[data-refund],[data-rsave],[data-undo],[data-retalert],[data-dv],[data-rv],[data-mon],[data-day],[data-allcal],[data-goto],[data-backup],[data-cur],[data-tidy],[data-appready],[data-apphide],[data-gate],[data-demoreset],[data-stat]");
   if(!t){if(e.target.id==="shade")closeSheet();return}var d=t.dataset;
   if(d.shot){$("#shotFile").value="";$("#shotFile").click();return}
   if(d.new){formSheet({},"new");return}
@@ -540,6 +540,12 @@ document.addEventListener("click",function(e){var t=e.target.closest("[data-shot
   if(d.cur){var C=["£","$","€"];S.cur=C[(C.indexOf(S.cur)+1)%3];refresh();toast("Currency: "+S.cur);return}
   if(d.tidy){var n=S.orders.length;S.orders=S.orders.filter(function(o){return !((o.rs==="refunded"||o.rs==="keep"||(o.arrived&&!o.rs&&(!o.retBy||daysTo(o.retBy)<0)))&&daysTo(o.refOn||o.arrOn||o.due||today())<-7)});refresh();toast(n-S.orders.length?plural(n-S.orders.length,"finished item")+" cleared":"Nothing to tidy yet");return}
   if(d.appready){try{history.replaceState(null,"","#i="+pack())}catch(e){}toast("Ready. Now tap Share → Add to Home Screen");return}
+  if(d.stat){var q=d.stat.split("|"),c2=counts(),pick=q[2]==="today"?c2.today:q[2]==="late"?c2.late:q[2]==="due"?c2.dueWeek:[];
+    if(q[0]==="deliv"){V.dv=q[1];V.sel=null;renderDeliv()}else{V.rv=q[1];renderRet()}
+    var tgt="#"+q[0];if(location.hash!==tgt)location.hash=q[0];else show();
+    setTimeout(function(){var box=document.getElementById(q[0]==="deliv"?"delivBox":"retBox"),seg=box.querySelector(".seg"),els=pick.map(function(o){return document.getElementById((q[0]==="deliv"?"o-":"r-")+o.id)}).filter(Boolean);
+      if(els.length){els[0].scrollIntoView({block:"center"});els.forEach(function(el){el.style.outline="2px solid var(--gold)";setTimeout(function(){el.style.outline=""},1800)})}
+      else if(seg)seg.scrollIntoView({block:"start"});if(pick.length===0&&q[2]!=="up"&&q[2]!=="arr"&&q[2]!=="wait")toast("Nothing there right now")},80);return}
   if(d.demoreset){S.orders=demoSeed();refresh();toast("Demo reset");return}
   if(d.apphide){S.appHide=1;refresh();return}
 });

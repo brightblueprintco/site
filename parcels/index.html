@@ -330,7 +330,7 @@ function delivCard(o){var st=dstat(o),ti=bestLink(o);
   return '<div class="ic2'+(o.arrived?" done":"")+'" id="o-'+o.id+'">'+dateBox(o.arrived?(o.arrOn||o.due):o.due,o.arrived?"m":"")+
    '<div class="im"><div class="it">'+esc(o.item||"Untitled order")+'</div><div class="meta">'+metaLine(o)+'</div>'+
    '<div class="pills"><span class="pill '+st[1]+'">'+esc(st[0])+'</span>'+(o.arrived?retPill(o):"")+(o.rs==="return"?'<span class="pill now">Sending back</span>':"")+(o.rs==="posted"?'<span class="pill now">Refund pending</span>':"")+(o.rs==="refunded"?'<span class="pill ok">Refunded</span>':"")+'</div>'+
-   '<div class="pact">'+(ti&&!o.arrived?'<a class="pa main" href="'+esc(ti.url)+'" target="_blank" rel="noopener">'+esc(ti.label)+' →</a>':'')+
+   '<div class="pact">'+(ti&&!o.arrived?'<a class="pa main" href="'+esc(ti.url)+'"'+(/^track\.html/.test(ti.url)?'':' target="_blank" rel="noopener"')+'>'+esc(ti.label)+' →</a>':'')+
    (o.due&&!o.arrived?'<button class="pa" data-alert="'+o.id+'">Alert me</button>':'')+
    (!o.arrived?'<button class="pa" data-arr="'+o.id+'">Mark arrived</button>':'')+
    (o.arrived&&!o.rs?'<button class="pa gold" data-sendback="'+o.id+'">Return it</button>':'')+
@@ -380,7 +380,8 @@ function renderHome(){var c=counts(),h="";
   $("#homeBox").innerHTML=h}
 
 /* ---------- deliveries ---------- */
-var V={dv:"up",rv:"send",m:null,sel:null};
+var V={dv:"up",rv:"send",m:null,sel:null};try{var _v=JSON.parse(sessionStorage.getItem("pp-v")||"null");if(_v){V.dv=_v.dv||V.dv;V.rv=_v.rv||V.rv;V.sel=_v.sel||null;if(_v.m)V.m=new Date(_v.m)}}catch(e){}
+function keepV(){try{sessionStorage.setItem("pp-v",JSON.stringify({dv:V.dv,rv:V.rv,sel:V.sel,m:V.m?V.m.getTime():null}))}catch(e){}}
 function cal(){var now=new Date();if(!V.m)V.m=new Date(now.getFullYear(),now.getMonth(),1);var y=V.m.getFullYear(),m=V.m.getMonth();
   var first=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate(),by={};
   S.orders.forEach(function(o){if(o.due&&!o.arrived)(by[o.due]=by[o.due]||[]).push(["d",o]);if(o.arrived&&(o.arrOn||o.due))(by[o.arrOn||o.due]=by[o.arrOn||o.due]||[]).push(["a",o]);
@@ -399,7 +400,7 @@ function renderDeliv(){var c=counts(),h=addCard();
   if(V.dv==="arr")h+=ar.length?ar.map(delivCard).join(""):'<div class="empty">Nothing’s arrived yet.</div>';
   if(V.dv==="cal")h+=cal();
   if(up.some(function(o){return o.due})||S.orders.some(function(o){return o.rs==="return"||deciding(o)}))h+='<button class="btn alt wide" style="margin-top:14px" data-allcal="1">'+IC.cal+' Add everything to my calendar</button><p class="meta" style="text-align:center;margin-top:6px;font-size:12.5px">Deliveries pop up at 8am on the day. Return deadlines remind you two days before.</p>';
-  $("#delivBox").innerHTML=h}
+  $("#delivBox").innerHTML=h;keepV()}
 
 /* ---------- returns ---------- */
 function renderRet(){var c=counts(),h="";

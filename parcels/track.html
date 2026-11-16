@@ -21,7 +21,7 @@
 <div class="wrap">
 <div class="card"><div class="big"><div><div class="lab">Expected</div><b id="due"></b></div><div style="text-align:right"><div class="lab">Window</div><b id="win" style="font-size:17px"></b></div></div><div class="bar"><i id="bar"></i></div><span class="lab" id="stat"></span></div>
 <div class="card"><div class="lab" style="margin-bottom:12px">Tracking history</div><ul class="tl" id="tl"></ul></div>
-<a class="btn" href="javascript:history.back()">Back to my parcels</a>
+<a class="btn" id="back" href="./#deliv">Back to my parcels</a>
 <p class="note">Sample tracking page for demo purposes.</p>
 </div>
 <script>
@@ -42,4 +42,5 @@ document.getElementById("stat").textContent=dd<0?"Running late, sorry!":["","In 
 var ev=[["Order received from "+((o&&o.from)||"the seller"),add(due,-4)+" 09:12"],["Collected by "+c,add(due,-3)+" 17:40"],["In transit to your local depot",add(due,-2)+" 03:55"]];
 if(st>=2)ev.push(["Arrived at your local depot",add(due,-1)+" 22:18"]);if(st>=3)ev.push(["Out for delivery with your driver",(dd<0?t:due)+" 07:31"]);
 document.getElementById("tl").innerHTML=ev.reverse().map(function(e,i){var p=e[1].split(" ");return '<li class="'+(i===0?"now":"d")+'"><b>'+e[0]+'</b><span>'+f(p[0])+", "+p[1]+'</span></li>'}).join("");
+document.getElementById("back").addEventListener("click",function(e){e.preventDefault();var r=document.referrer||"";if(r.indexOf(location.origin+location.pathname.replace(/track\.html$/,""))===0&&history.length>1)history.back();else location.replace("./#deliv")});
 </script></body></html>

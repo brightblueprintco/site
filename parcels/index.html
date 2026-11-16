@@ -54,7 +54,7 @@ section{display:none}section.on{display:block;animation:fi .25s ease}
 .f input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#fff;font-size:16px;min-height:48px}
 .f input:focus{outline:none;border-color:var(--gold)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.dwrap{position:relative}.dwrap input{padding-right:44px}
+.dwrap{position:relative}.f input[type="date"]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;text-align:left}.f input[type="date"]::-webkit-date-and-time-value{text-align:left}.dwrap input{padding-right:44px}
 .cwrap{position:relative}.cwrap input{padding-right:44px}.tclr{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:var(--line);color:var(--ink);font-size:16px;line-height:1;cursor:pointer;display:none}.cwrap.has .tclr{display:block}
 .dclr{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:var(--line);color:var(--ink);font-size:16px;line-height:1;cursor:pointer}
 /* stats */
@@ -502,9 +502,10 @@ function readShot(file){var url=URL.createObjectURL(file);
       var d=ca.getImageData(0,0,w,h),e=cb2.createImageData(w,h);for(var i=0;i<d.data.length;i+=4){var l=Math.round(.299*d.data[i]+.587*d.data[i+1]+.114*d.data[i+2]);d.data[i]=d.data[i+1]=d.data[i+2]=l;e.data[i]=e.data[i+1]=e.data[i+2]=255-l;e.data[i+3]=255}
       ca.putImageData(d,0,0);cb2.putImageData(e,0,0);cb([a,b])};img.onerror=function(){cb([file])};img.src=url}
   var prog=function(base){return {logger:function(m){var p=document.getElementById("shotProg");if(p&&m.status&&m.progress!=null)p.textContent="Reading… "+Math.round(base+m.progress*50)+"%"}}};
-  loadTess(function(){prep(function(srcs){var texts=[];var run=function(i){if(i>=srcs.length){done(texts.join("\n"));return}Tesseract.recognize(srcs[i],"eng",prog(i*50)).then(function(r){texts.push(r.data.text||"");run(i+1)}).catch(function(){run(i+1)})};run(0)})},
+  var tries=0;function go(){prep(function(srcs){var texts=[],errs=0;var run=function(i){if(i>=srcs.length){var t=texts.join("\n");if(!t.trim()&&errs&&tries<1){tries++;var p=document.getElementById("shotProg");if(p)p.textContent="Having another go…";setTimeout(go,800);return}done(t);return}Tesseract.recognize(srcs[i],"eng",prog(i*50)).then(function(r){texts.push(r.data.text||"");run(i+1)}).catch(function(){errs++;run(i+1)})};run(0)})}
+  loadTess(go,
     function(){var p=document.getElementById("shotProg");if(p)p.innerHTML='Couldn’t load the reader. Check your connection, or <button class="lnk" data-new="1">type it in instead</button>.'});
-  function done(txt){var o=parseShot(txt);o.price=parsePrice(txt);o.retBy=parseRet(txt,o.due);window.PR_LAST=o;formSheet(o,"found")}}
+  function done(txt){if(!txt.replace(/\s/g,"").length){var p=document.getElementById("shotProg");if(p)p.innerHTML='Couldn’t read that one. It’s usually a weak signal or a blurry screenshot.<div class="pact" style="justify-content:center;margin-top:12px"><button class="pa main" data-shot="1">Try another screenshot</button><button class="pa" data-new="1">Type it in instead</button></div>';return}var o=parseShot(txt);o.price=parsePrice(txt);o.retBy=parseRet(txt,o.due);window.PR_LAST=o;formSheet(o,"found")}}
 
 /* ---------- events ---------- */
 document.addEventListener("click",function(e){var t=e.target.closest("[data-shot],[data-new],[data-newret],[data-close],[data-fsave],[data-fto],[data-fcar],[data-fwin],[data-dclr],[data-edit],[data-remove],[data-arr],[data-alert],[data-sendback],[data-keep],[data-posted],[data-psave],[data-refund],[data-rsave],[data-undo],[data-retalert],[data-dv],[data-rv],[data-mon],[data-day],[data-allcal],[data-goto],[data-backup],[data-cur],[data-tidy],[data-appready],[data-apphide],[data-gate],[data-demoreset],[data-stat]");

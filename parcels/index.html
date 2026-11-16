@@ -250,7 +250,7 @@ var CC=null;function country(){if(CC)return CC;var tz="";try{tz=Intl.DateTimeFor
 function load(){var s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   s=s||{};s.orders=s.orders||[];if(!s.cur){var c=country();s.cur=c==="GB"?"£":(c==="IE"||c==="EU")?"€":"$"}
   if(!s.win)s.win=(["GB","IE","EU"].indexOf(country())>=0)?14:30;return s}
-var S=load();
+var S=load();(function(){var m=location.search.match(/[?&]cur=(gbp|usd|eur)/i);if(m){S.cur={gbp:"£",usd:"$",eur:"€"}[m[1].toLowerCase()];try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}})();
 var DCAR=["ParcelCo","SwiftPost","Northway"];
 function demoSeed(){var T=today(),A=function(n){return addDays(T,n)},P=["ParcelCo","SwiftPost","Northway"],k=0,tn=function(c){k++;return (c==="ParcelCo"?"PC":c==="SwiftPost"?"SP":"NW")+String(3810274650+k*7919)};
   var R=[

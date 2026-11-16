@@ -495,6 +495,17 @@ var TESS=null;function loadTess(cb,fail){if(window.Tesseract)return cb();if(TESS
 function parsePrice(t){var lines=t.split(/\n/),best="";var re=/(?:£|\$|€)\s?(\d{1,5}(?:[.,]\d{2})?)/;
   lines.forEach(function(l){var m=l.match(re);if(m&&/total|paid|amount|refund/i.test(l))best=m[1]});if(!best){var m=t.match(re);if(m)best=m[1]}return best?best.replace(",","."):""}
 function parseRet(t,due){var w=t.match(/return[^\n]{0,40}?within\s+(\d{1,3})\s+days/i);if(w)return addDays(due||today(),+w[1]);var m=t.match(/return[s]?\s*(?:by|before|until|window\s*(?:closes|ends)|deadline)[^\n]{0,40}/i);return m?parseDate(m[0]):""}
+function fixShot(o,t){var flat=t.replace(/\s*\n\s*/g," ");
+  var m=flat.match(/(?:parcel|order|package)\s+from\s+([A-Z][^()]{1,40}?)\s*\(([^)]{2,60})\)/);
+  if(m){o.from=m[1].replace(/\s+(is|has|was)$/,"").trim();o.item=m[2].trim();return o}
+  var lines=t.split(/\n/).map(function(l){return l.trim()}).filter(Boolean),caps=lines.filter(function(l){return l.length>3&&l===l.toUpperCase()&&/[A-Z]{3}/.test(l)});
+  for(var i=0;i<lines.length;i++){var k=lines[i].match(/(?:parcel|order|package)\s+from\s+(.+)$/i);if(!k)continue;var a=k[1].replace(/[.,!]+$/,"").trim();
+    if(lines[i+1]&&lines[i+1].split(/\s+/).length<=3){var b=(a+" "+lines[i+1].replace(/[.,!]+$/,"")).trim();if(caps.some(function(c){return c.indexOf(b.toUpperCase())>=0}))a=b}
+    if(a&&(!o.from||a.length>o.from.length&&a.indexOf(o.from)===0)){if(o.item&&o.item.toLowerCase()===a.toLowerCase())o.item="";o.from=a}
+    if(o.item&&o.from&&o.item.toLowerCase()===o.from.toLowerCase())o.item="";
+    if(!o.item){var j=i+1;while(j<lines.length&&j<i+6){var L=lines[j];if(!/^(qty|it'?s|good news|arriving|delivered|tracking|order|your|shop)\b/i.test(L)&&L.toLowerCase()!==String(o.from).toLowerCase()&&!/[\d£$€]/.test(L)&&L.split(/\s+/).length>=2&&L.split(/\s+/).length<=6&&L!==L.toUpperCase()&&(o.from+" ").toLowerCase().indexOf(L.toLowerCase())<0){o.item=L;break}j++}}
+    break}
+  return o}
 function readShot(file){var url=URL.createObjectURL(file);
   openSheet('<h2>Reading your screenshot</h2><div class="scan"><img src="'+url+'" alt=""><i></i></div><p class="meta" id="shotProg" style="text-align:center">Reading… (the first time takes a few seconds)</p>');
   function prep(cb){var img=new Image();img.onload=function(){var sc=Math.min(1,2000/Math.max(img.width,img.height)),w=Math.round(img.width*sc),h=Math.round(img.height*sc);
@@ -505,7 +516,7 @@ function readShot(file){var url=URL.createObjectURL(file);
   var tries=0;function go(){prep(function(srcs){var texts=[],errs=0;var run=function(i){if(i>=srcs.length){var t=texts.join("\n");if(!t.trim()&&errs&&tries<1){tries++;var p=document.getElementById("shotProg");if(p)p.textContent="Having another go…";setTimeout(go,800);return}done(t);return}Tesseract.recognize(srcs[i],"eng",prog(i*50)).then(function(r){texts.push(r.data.text||"");run(i+1)}).catch(function(){errs++;run(i+1)})};run(0)})}
   loadTess(go,
     function(){var p=document.getElementById("shotProg");if(p)p.innerHTML='Couldn’t load the reader. Check your connection, or <button class="lnk" data-new="1">type it in instead</button>.'});
-  function done(txt){if(!txt.replace(/\s/g,"").length){var p=document.getElementById("shotProg");if(p)p.innerHTML='Couldn’t read that one. It’s usually a weak signal or a blurry screenshot.<div class="pact" style="justify-content:center;margin-top:12px"><button class="pa main" data-shot="1">Try another screenshot</button><button class="pa" data-new="1">Type it in instead</button></div>';return}var o=parseShot(txt);o.price=parsePrice(txt);o.retBy=parseRet(txt,o.due);window.PR_LAST=o;formSheet(o,"found")}}
+  function done(txt){if(!txt.replace(/\s/g,"").length){var p=document.getElementById("shotProg");if(p)p.innerHTML='Couldn’t read that one. It’s usually a weak signal or a blurry screenshot.<div class="pact" style="justify-content:center;margin-top:12px"><button class="pa main" data-shot="1">Try another screenshot</button><button class="pa" data-new="1">Type it in instead</button></div>';return}var o=fixShot(parseShot(txt),txt);o.price=parsePrice(txt);o.retBy=parseRet(txt,o.due);window.PR_LAST=o;formSheet(o,"found")}}
 
 /* ---------- events ---------- */
 document.addEventListener("click",function(e){var t=e.target.closest("[data-shot],[data-new],[data-newret],[data-close],[data-fsave],[data-fto],[data-fcar],[data-fwin],[data-dclr],[data-edit],[data-remove],[data-arr],[data-alert],[data-sendback],[data-keep],[data-posted],[data-psave],[data-refund],[data-rsave],[data-undo],[data-retalert],[data-dv],[data-rv],[data-mon],[data-day],[data-allcal],[data-goto],[data-backup],[data-cur],[data-tidy],[data-appready],[data-apphide],[data-gate],[data-demoreset],[data-stat]");

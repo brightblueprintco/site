@@ -255,7 +255,7 @@ var DCAR=["ParcelCo","SwiftPost","Northway"];
 function demoSeed(){var T=today(),A=function(n){return addDays(T,n)},P=["ParcelCo","SwiftPost","Northway"],k=0,tn=function(c){k++;return (c==="ParcelCo"?"PC":c==="SwiftPost"?"SP":"NW")+String(3810274650+k*7919)};
   var R=[
    ["Cashmere bed socks, oatmeal","Maple & Moss",24,0,"Home","up",0],["Linen tablecloth","Hearth & Home Co",38,0,"Home","up",1],["Wireless headphones","Kindred Supply",89.99,1,"Work","up",2],
-   ["Kids' watercolour art set","The Little Paper Shop",18.5,3,"Home","up",0],["Wool throw blanket","Loom & Thread",65,5,"Someone else","up",1],["Running jacket","North & Nell",72,-2,"Home","up",2],
+   ["Kids' watercolour art set","The Little Paper Shop",18.5,3,"Home","up",0],["Wool throw blanket","Loom & Thread",65,5,"Someone else","up",1],["Running jacket","North & Nell",72,-2,"Home","up",2],["Gingerbread house kit","Bramble Kitchen",22,0,"Home","up",1],["Fairy light garland","Wild Fern Studio",16,1,"Home","up",0],["Chunky knit jumper","Loom & Thread",58,2,"Home","up",2],["Leather gloves","Oak & Ember",45,2,"Work","up",1],["Kids' dinosaur puzzle","The Little Paper Shop",14,4,"Home","up",0],["Reed diffuser set","Maple & Moss",30,6,"Someone else","up",2],["Personalised bauble","Copper Lane",12,7,"Home","up",1],
    ["Cast iron casserole dish","Bramble Kitchen",54,-3,"Home","dec",0,2],["Scented candle trio","Wild Fern Studio",28,-5,"Home","dec",1,9],["Leather card holder","Oak & Ember",35,-8,"Work","dec",2,20],["Ceramic mug set","Copper Lane",32,-4,"Home","dec",0,25],
    ["Hiking boots","North & Nell",95,-12,"Home","ret",1,1],["Silk pillowcase","Maple & Moss",42,-9,"Home","ret",2,6],
    ["Winter coat","Kindred Supply",120,-25,"Home","post",0,4,64],["Party dress","Loom & Thread",45,-20,"Home","post",1,9,45],["Desk lamp","Copper Lane",28.5,-30,"Work","post",2,18,28.5],
@@ -266,7 +266,7 @@ function demoSeed(){var T=today(),A=function(n){return addDays(T,n)},P=["ParcelC
     if(r[5]==="post"){o.rs="posted";o.postedOn=A(-r[7]);o.refAmt=r[8];o.retBy=A(-r[7]+3)}
     if(r[5]==="ref"){o.rs="refunded";o.postedOn=A(r[3]+10);o.refOn=A(r[3]+20);o.refAmt=r[8]}
     return o})}
-if(DEMO){if(!S.orders.length){S.orders=demoSeed();S.unlocked=1}S.appHide=1;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+if(DEMO){if(!S.orders.length||S.seeded!==today()){S.orders=demoSeed();S.seeded=today();S.unlocked=1}S.appHide=1;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function money(n){n=+n||0;return S.cur+(n%1?n.toFixed(2):n.toFixed(0))}
 function byId(id){return S.orders.find(function(o){return o.id===id})}
@@ -415,7 +415,7 @@ function renderRet(){var c=counts(),h="";
   $("#retBox").innerHTML=h}
 
 /* ---------- more / app / help ---------- */
-function renderMore(){var tiles=[["allcal",IC.cal,"Add to calendar","Every delivery and return deadline"],["#app",IC.app,"Make it an app","One tap from your home screen"],["backup",IC.move,"Back up / move phones","Copy a link with all your parcels"],["cur",IC.cur,"Currency: "+S.cur,"Tap to switch"],["tidy",IC.tidy,"Tidy up","Clear finished items"],["#help",IC.help,"Help","Quick answers"]];if(DEMO)tiles.push(["demoreset",IC.tidy,"Reset demo","Back to the 18 sample parcels"]);
+function renderMore(){var tiles=[["allcal",IC.cal,"Add to calendar","Every delivery and return deadline"],["#app",IC.app,"Make it an app","One tap from your home screen"],["backup",IC.move,"Back up / move phones","Copy a link with all your parcels"],["cur",IC.cur,"Currency: "+S.cur,"Tap to switch"],["tidy",IC.tidy,"Tidy up","Clear finished items"],["#help",IC.help,"Help","Quick answers"]];if(DEMO)tiles.push(["demoreset",IC.tidy,"Reset demo","Back to the sample parcels"]);
   var h='<div class="tiles">'+tiles.map(function(t){return t[0].charAt(0)==="#"?'<a class="tile" href="'+t[0]+'"><span class="ti">'+t[1]+'</span><b>'+t[2]+'</b><span>'+t[3]+'</span></a>':'<button class="tile" data-'+t[0]+'="1"><span class="ti">'+t[1]+'</span><b>'+esc(t[2])+'</b><span>'+t[3]+'</span></button>'}).join("")+'</div>';
   h+='<a class="etsy" href="'+ETSY+'" target="_blank" rel="noopener" style="margin-top:16px">'+'<b>More from BrightBlueprintCo →</b><br>Planners and helpers for real life, including the Personal Shopper &amp; Gift Planner.</a>';
   $("#moreBox").innerHTML=h}
@@ -547,7 +547,7 @@ document.addEventListener("click",function(e){var t=e.target.closest("[data-shot
     setTimeout(function(){var box=document.getElementById(q[0]==="deliv"?"delivBox":"retBox"),seg=box.querySelector(".seg"),els=pick.map(function(o){return document.getElementById((q[0]==="deliv"?"o-":"r-")+o.id)}).filter(Boolean);
       if(els.length){els[0].scrollIntoView({block:"center"});els.forEach(function(el){el.style.outline="2px solid var(--gold)";setTimeout(function(){el.style.outline=""},1800)})}
       else if(seg)seg.scrollIntoView({block:"start"});if(pick.length===0&&q[2]!=="up"&&q[2]!=="arr"&&q[2]!=="wait")toast("Nothing there right now")},80);return}
-  if(d.demoreset){S.orders=demoSeed();refresh();toast("Demo reset");return}
+  if(d.demoreset){S.orders=demoSeed();S.seeded=today();refresh();toast("Demo reset");return}
   if(d.apphide){S.appHide=1;refresh();return}
 });
 document.getElementById("shotFile").addEventListener("change",function(e){var f=e.target.files&&e.target.files[0];if(f)readShot(f)});
